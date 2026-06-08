@@ -89,6 +89,8 @@ require("src.ev_q_defs")
 
 local subpixel = require("src.modules.subpixel")
 
+local sceneManager = require("src.scenes.sceneManager")
+
 
 local bgm = require("src.sound.bgm")
 local sfx = require("src.sound.sfx")
@@ -105,6 +107,8 @@ function love.load()
     end
     g.loadImagesFrom("assets")
     g.requireFolder("src/content")
+    sceneManager.loadScenes()
+    sceneManager.gotoScene("menu_scene")
     for _, a in ipairs(arg or {}) do
         local port = a:match("^%-%-devport=(%d+)$")
         if port then agentbridge.start(tonumber(port)); break end
@@ -118,6 +122,10 @@ function love.update(dt)
     local BGM_VOL=1-- todo, pass proper value here
     bgm.update(dt, BGM_VOL)
     textPopupService.update(dt)
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.update then
+        sc:update(dt)
+    end
 end
 
 function love.quit()
@@ -126,19 +134,70 @@ end
 
 function love.draw()
     lg.setShader(subpixel.shader)
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.draw then
+        sc:draw()
+    end
     textPopupService.draw()
     vignette.draw()
     if consts.DEV_MODE then
+        local _, sceneName = sceneManager.getCurrentScene()
         local fps = love.timer.getFPS()
         love.graphics.setColor(1, 1, 1, 0.5)
         love.graphics.push()
         love.graphics.scale(2)
-        love.graphics.printf("FPS: " .. fps, 0, 2, love.graphics.getWidth() / 2 - 4, "right")
+        love.graphics.printf((sceneName or "") .. "  FPS: " .. fps, 0, 2, love.graphics.getWidth() / 2 - 4, "right")
         love.graphics.pop()
         love.graphics.setColor(1, 1, 1, 1)
     end
 end
 
+function love.keypressed(key, scancode, isrep)
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.keypressed then
+        sc:keypressed(key, scancode, isrep)
+    end
+end
+
+function love.keyreleased(key, scancode)
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.keyreleased then
+        sc:keyreleased(key, scancode)
+    end
+end
+
+function love.mousepressed(mx, my, button, istouch, presses)
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.mousepressed then
+        sc:mousepressed(mx, my, button, istouch, presses)
+    end
+end
+
+function love.mousereleased(mx, my, button, istouch)
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.mousereleased then
+        sc:mousereleased(mx, my, button, istouch)
+    end
+end
+
+function love.mousemoved(mx, my, dx, dy, istouch)
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.mousemoved then
+        sc:mousemoved(mx, my, dx, dy, istouch)
+    end
+end
+
+function love.wheelmoved(dx, dy)
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.wheelmoved then
+        sc:wheelmoved(dx, dy)
+    end
+end
+
 function love.resize(w, h)
     vignette.resize()
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.resize then
+        sc:resize(w, h)
+    end
 end
