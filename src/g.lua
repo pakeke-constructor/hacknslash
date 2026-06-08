@@ -13,6 +13,10 @@ local nameToQuad = {}
 
 local richtext = require("src.modules.richtext.exports")
 
+local consts = require("src.consts")
+local sfx = require("src.sound.sfx")
+local bgm = require("src.sound.bgm")
+
 
 
 --------------------------------------------------------------------------------
@@ -160,6 +164,137 @@ do
     -- Now define it to be 1x1 instead of 3x3
     q:setViewport(x + 1, y + 1, 1, 1, g.getAtlas():getDimensions())
     nameToQuad["1x1"] = q
+end
+
+
+
+--------------------------------------------------------------------------------
+-- Sound (SFX + BGM)
+--------------------------------------------------------------------------------
+do
+
+----------
+-- SFXs --
+----------
+
+---@param soundname string
+---@param pitch number? (defaults to 1)
+---@param volume number? (defaults to 1)
+---@param pitchVar number? (pitch variance, default 0)
+---@param volumeVar number? (volume variance, default 0)
+function g.playWorldSound(soundname, pitch, volume, pitchVar, volumeVar)
+    -- World sounds are dropped once too many sources are already playing,
+    -- so swarm-combat doesn't blow out the audio mixer.
+    if love.audio.getActiveSourceCount() > consts.MAX_PLAYING_SOURCES then
+        return false
+    end
+    return sfx.play(soundname, pitch, volume, pitchVar, volumeVar)
+end
+
+---@param soundname string
+---@param pitch number? (defaults to 1)
+---@param volume number? (defaults to 1)
+---@param pitchVar number? (pitch variance, default 0)
+---@param volumeVar number? (volume variance, default 0)
+function g.playUISound(soundname, pitch, volume, pitchVar, volumeVar)
+    return sfx.play(soundname, pitch, volume, pitchVar, volumeVar)
+end
+
+---Call once per frame to reset the per-frame sound throttle.
+function g.updateSfx()
+    sfx.update()
+end
+
+local validExtensions = {
+    wav = true,
+    mp3 = true,
+    ogg = true,
+    flac = true
+}
+
+---@param path string
+local function loadSound(path)
+    local pathrev = path:reverse()
+    local ext = pathrev:sub(1, (pathrev:find(".", 1, true) or 1) - 1):reverse():lower()
+
+    if validExtensions[ext] then
+        local basename = pathrev:sub(1, pathrev:find("/", 1, true) - 1):reverse()
+
+        if #basename > 0 then
+            local name = basename:sub(1, -#ext - 2)
+            -- Leading-underscore files are skipped (eg bgm tracks live under bgm dirs).
+            if name:sub(1, 1) ~= "_" then
+                sfx.defineSound(name, path)
+            end
+        end
+    end
+end
+
+g.walkDirectory("assets/sfx", loadSound)
+
+
+----------
+-- BGMs --
+----------
+
+-- Higher number means higher priority.
+g.BGMID = {
+    TITLE = 999, -- Title / menu
+    GAMEPLAY = 1, -- In-run gameplay
+    BOSS = 100, -- Boss theme
+}
+
+---@param path string
+---@param prio integer
+---@param isAmbient boolean?
+local function registerBGMFromDirectories(path, prio, isAmbient)
+    ---@type string[]
+    local files = {}
+
+    g.walkDirectory(path, function(filename)
+        local pathrev = filename:reverse()
+        local ext = pathrev:sub(1, (pathrev:find(".", 1, true) or 1) - 1):reverse():lower()
+
+        if validExtensions[ext] then
+            local basename = pathrev:sub(1, pathrev:find("/", 1, true) - 1):reverse()
+
+            if #basename > 0 then
+                local name = basename:sub(1, -#ext - 2)
+                if name:sub(1, 1) ~= "_" then
+                    files[#files + 1] = filename
+                end
+            end
+        end
+    end)
+
+    if #files == 0 then
+        error("no bgm files in " .. path)
+    end
+
+    return bgm.register(prio, files, isAmbient)
+end
+
+-- We cannot use g.walkDirectory directly because we need all the files first,
+-- then register the BGM in one go via bgm.register.
+--[[
+registerBGMFromDirectories("assets/bgm/boss", g.BGMID.BOSS, false)
+registerBGMFromDirectories("assets/bgm/gameplay", g.BGMID.GAMEPLAY, true)
+registerBGMFromDirectories("assets/bgm/title", g.BGMID.TITLE, true)
+]]
+
+---Request playing a specific BGM ID. Must be called every frame the music
+---should keep playing; the highest-priority request wins.
+---@param id integer BGM ID. Use `g.BGMID` for the fixed constants.
+function g.requestBGM(id)
+    return bgm.request(id)
+end
+
+---@param dt number
+---@param volume number
+function g.updateBGM(dt, volume)
+    return bgm.update(dt, volume)
+end
+
 end
 
 
