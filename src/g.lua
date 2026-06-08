@@ -113,6 +113,21 @@ end
 -- Directory walking / image loading
 --------------------------------------------------------------------------------
 
+
+
+---@param path string
+function g.requireFolder(path)
+    local results = {}
+    g.walkDirectory(path:gsub("%.", "/"), function(pth)
+        if pth:sub(-4, -1) == ".lua" then
+            pth = pth:sub(1, -5)
+            results[pth] = require(pth:gsub("%/", "."))
+        end
+    end)
+    return results
+end
+
+
 ---@param path string
 ---@param func fun(path: string)
 function g.walkDirectory(path, func)
@@ -287,12 +302,6 @@ registerBGMFromDirectories("assets/bgm/title", g.BGMID.TITLE, true)
 ---@param id integer BGM ID. Use `g.BGMID` for the fixed constants.
 function g.requestBGM(id)
     return bgm.request(id)
-end
-
----@param dt number
----@param volume number
-function g.updateBGM(dt, volume)
-    return bgm.update(dt, volume)
 end
 
 end
