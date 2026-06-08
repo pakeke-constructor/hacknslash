@@ -15,6 +15,9 @@ consts.MAX_PLAYING_SOURCES = 14
 
 consts.TAU = 2 * math.pi
 
+-- Downward accel for entities with a vz (z-height), eg arcing projectiles.
+consts.GRAVITY = 300
+
 -- Max distinct event-type dispatches per frame (avoids infinite loops robustly).
 consts.MAX_EVENT_CALLS_PER_FRAME = 20
 

@@ -307,4 +307,248 @@ end
 end
 
 
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------
+--- Entity rendering
+---------------------------------------------------------------
+
+
+local function drawIceCube(ent, x, y, sx,sy)
+    local W,H,_ = 16,16,nil
+    local quad = g.getImageQuad(ent.image)
+    _,_,W,H = quad:getViewport()
+    W = W+10
+    H = H+10
+    lg.setColor(1,1,1,0.5)
+    g.drawImageContained("ice_cube", x-W/2, y-H/2, W,H)
+end
+
+
+local HEALTHBAR_ON_TOP = true
+-- true if healthbar on top, 
+-- false implies healthbar on bottom
+
+local ENEMY_HEALTHBAR_COLOR = g.snapToPalette(1, 0.1, 0.1)
+local ALLY_HEALTHBAR_COLOR = g.snapToPalette(0.1, 1, 0.1)
+local NEUTRAL_HEALTHBAR_COLOR = g.snapToPalette(0.1, 0.4, 1)
+
+
+---@param ent ecs.Entity
+---@param x number
+---@param y number
+local function drawHealthBar(ent, x,y)
+    if not ent.maxHealth then return end
+    local w, h = 16, 2
+    local frac = ent.health / ent.maxHealth
+
+    local oy = -2
+    if HEALTHBAR_ON_TOP then
+        local _w,hhh = g.getImageSize(ent.image)
+        oy= -hhh - 4
+    end
+
+    -- black outline
+    local out=2
+    lg.setColor(0, 0, 0)
+    lg.rectangle("fill", x - w/2 - out, y + oy - out, w + out*2, h + out*2)
+
+    local lagFrac = helper.clamp((ent.health + (ent._damageLagAmount or 0)) / ent.maxHealth, 0, 1)
+    -- white lagged
+    lg.setColor(1, 1, 1)
+    lg.rectangle("fill", x - w/2, y + oy, w * lagFrac, h)
+
+    -- green healthbar for allies, red for enemies
+    if ent.team == "enemy" then
+        lg.setColor(ENEMY_HEALTHBAR_COLOR)
+    elseif ent.team == "ally" then
+        lg.setColor(ALLY_HEALTHBAR_COLOR)
+    else -- neutral unit
+        lg.setColor(NEUTRAL_HEALTHBAR_COLOR)
+    end
+    lg.rectangle("fill", x - w/2, y + oy, w * frac, h)
+
+    -- status effect tip segments (drawn right-to-left from tip)
+    local pxPerHp = w / ent.maxHealth
+    local right = x - w/2 + w * frac
+    local remaining = ent.health
+    local function drawTip(hp, color)
+        hp = math.min(hp, remaining)
+        if hp <= 0 then return end
+        lg.setColor(color)
+        lg.rectangle("fill", right - hp * pxPerHp, y + oy, hp * pxPerHp, h)
+        right = right - hp * pxPerHp
+        remaining = remaining - hp
+    end
+    drawTip(5 * (ent.poisonAmount or 0), g.COLORS.POISON)
+    drawTip((ent.burnTime or 0) * consts.BURN_DPS, g.COLORS.BURN)
+
+    if ent.armor then
+        local FLASH_DUR = 0.15
+        local armorFlash = math.max(0, FLASH_DUR - (ent._timeSinceLostArmor or 0xfff))/FLASH_DUR
+        local armorH = 6
+        local armorY = y + h + oy
+        local ratio = math.min(1,(ent.armor)/6)
+        lg.setColor(0,0,0)
+        lg.rectangle("fill", x-w/2, armorY, w*ratio, armorH)
+        local pad=2
+        lg.setColor(0.5,0.5,0.5)
+        lg.rectangle("fill", x-w/2 + pad, armorY + pad, ratio*(w-pad*2), armorH-pad*2)
+        if armorFlash then
+            lg.setColor(1,1,1, armorFlash)
+            lg.rectangle("fill", x-w/2, armorY, w*ratio, armorH)
+        end
+        lg.setColor(1,1,1)
+        g.drawImage("armor_healthbar_icon", x-w/2 - 2, armorY + 2)
+        if armorFlash > 0 then
+            lg.setColor(1,1,1, armorFlash)
+            g.drawImage("armor_healthbar_icon_white", x-w/2 - 2, armorY + 2)
+        end
+    end
+end
+
+
+
+---@param ent ecs.Entity
+---@param x number
+---@param y number
+function g.drawEntity(ent, x, y)
+    local entScale = g.ask("getEntityScale", ent) * (ent.scale or 1)
+    local sx, sy = (ent.sx or 1) * (ent.faceDir or 1) * entScale, (ent.sy or 1) * entScale
+    if ent.onDraw then
+        ent:onDraw(x, y)
+    end
+    local bodyRot = 0
+    local walkBounce, walkWobble = 0, 0
+    if ent._walkTime and ent._walkTime > 0 and ent.walkAnimation then
+        local wa = assert(ent.walkAnimation)
+        local t = ent._walkTime * wa.speed
+        walkBounce = -math.abs(math.sin(t)) * wa.bounceHeight
+        walkWobble = math.sin(t) * wa.rotationAmount
+    end
+    if ent.image then
+        local HIT_HEAL_COLOR_INDICATOR_DURATION = 0.25
+        local col = ent.color or objects.Color.WHITE
+
+        local timeSinceDmgd = ent._timeSinceDamaged or 0xfffffff
+        local timeSinceHeald = ent._timeSinceHealed or 0xfffffff
+        local timeSince = math.min(timeSinceDmgd, timeSinceHeald)
+        local amount = math.max(0, HIT_HEAL_COLOR_INDICATOR_DURATION - timeSince) / HIT_HEAL_COLOR_INDICATOR_DURATION
+        if amount > 0 then
+            if timeSinceDmgd < timeSinceHeald then
+                col = col:lerp(g.COLORS.DAMAGE, amount)
+            elseif timeSinceHeald < timeSinceDmgd then
+                col = col:lerp(g.COLORS.HEAL, amount)
+            end
+        end
+
+        lg.setColor(col[1], col[2], col[3], col[4] * (ent.alpha or 1))
+        local rot = (ent.rot or 0) + bodyRot + (ent.damageJolt or 0) + walkWobble
+        g.drawImageOffset(ent.image, x + (ent.ox or 0), y + (ent.oy or 0) + walkBounce, rot, sx, sy, 0.5, 0.95, ent.kx, ent.ky)
+
+        if ent.weapon then
+            drawWeapon(ent,x,y)
+        end
+
+        if ent.frozenTime and ent.frozenTime > 0 then
+            drawIceCube(ent, x,y, sx,sy)
+        end
+    end
+    if DEV_SHOW_RANGE and ent.attackRange then
+        lg.setColor(1,1,1,0.08 * math.min(1, (100/ent.attackRange)))
+        lg.circle("line", x,y, ent.attackRange)
+    end
+    if ent.health then
+        lg.setColor(1,1,1)
+        drawHealthBar(ent, x,y)
+    end
+end
+
+
+
+
+
+
+
+
+
+local PALETTE = {
+    {197, 48, 61},
+    {89, 71, 29},
+    {79, 45, 93},
+    {54, 199, 222},
+    {200, 82, 164},
+    {29, 58, 81},
+    {17, 18, 17},
+    {99, 99, 99},
+    {46, 68, 209},
+    {166, 84, 27},
+    {95, 57, 39},
+    {29, 27, 14},
+    {205, 133, 59},
+    {8, 8, 8},
+    {255, 255, 255},
+    {54, 30, 25},
+    {20, 14, 18},
+    {39, 39, 71},
+    {39, 55, 24},
+    {188, 227, 233},
+    {72, 72, 72},
+    {0, 0, 0},
+    {53, 125, 210},
+    {35, 100, 73},
+    {241, 241, 30},
+    {124, 200, 42},
+    {100, 106, 53},
+    {77, 140, 33},
+    {44, 44, 44},
+    {140, 159, 169},
+    {124, 34, 34},
+    {225, 185, 123}
+}
+for i, c in ipairs(PALETTE) do
+    PALETTE[i] = objects.Color.fromByteRGBA(c[1], c[2], c[3])
+end
+
+---Snap a color to the nearest palette entry.
+---Uses 4th-power channel distance to deeply penalize large per-channel differences.
+---Preserves the input alpha.
+---@param r number red [0..1]
+---@param gg number green [0..1]
+---@param b number blue [0..1]
+---@param a number? alpha [0..1] (default 1)
+---@overload fun(color:objects.Color):objects.Color
+---@return objects.Color
+function g.snapToPalette(r, gg, b, a)
+    if type(r) == "table" then
+        r, gg, b, a = r[1], r[2], r[3], r[4]
+    end
+    a = a or 1
+    local best, bestDist = nil, math.huge
+    for _, c in ipairs(PALETTE) do
+        local rbar = (r + c.r) * 0.5
+        local dr, dg, db = r - c.r, gg - c.g, b - c.b
+        -- redmean: cheap perceptual RGB distance
+        local dist = (2 + rbar)*dr*dr + 4*dg*dg + (3 - rbar)*db*db
+        if dist < bestDist then
+            bestDist = dist
+            best = c
+        end
+    end
+    assert(best, "?")
+    return best:clone():setRGBA(nil, nil, nil, a)
+end
+
+
+
+
+
 return g

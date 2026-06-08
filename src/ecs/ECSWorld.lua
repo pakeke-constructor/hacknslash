@@ -1,0 +1,239 @@
+local objects = require("src.modules.objects.objects")
+local table_clear = require("table.clear")
+local PixelCanvas = require("src.modules.PixelCanvas")
+
+---@class ecs.ECSWorld: objects.Class
+---@field public data table<string, any>
+local ECSWorld = objects.Class("ecs:ECSWorld")
+
+
+---@class ecs.System
+---@field public ecs ecs.ECSWorld
+
+
+local PARTITION_CHUNKSIZE = 32
+
+function ECSWorld:init(systemNames)
+    ---@type objects.BufferedSet<ecs.Entity>
+    self.entities = objects.BufferedSet()
+
+    self.data = {} -- system-storage
+
+    self.backCanvas = PixelCanvas.new(love.graphics.getDimensions())
+    self.frontCanvas = PixelCanvas.new(love.graphics.getDimensions())
+    self.border = nil -- {0, 0, w, h} or nil for no border
+
+    self.componentIndex = {} -- [componentName] -> {ent, ent, ...}
+    self.trackedComponents = objects.Set()
+    ---@type table<string, objects.Partition<ecs.Entity>>
+    self.partitions = {} -- [partitionId] -> objects.Partition<ecs.Entity> (created on demand)
+
+    -- Load systems (each system is a plain table of event/question handlers)
+    self.systems = {}
+    for _, name in ipairs(systemNames or {}) do
+        self.systems[#self.systems + 1] = require("src.ecs.systems." .. name)
+    end
+
+    -- Call initECS directly on systems (before pollHandlers has run)
+    for i = 1, #self.systems do
+        if self.systems[i].initECS then
+            self.systems[i].initECS(self)
+        end
+    end
+end
+
+function ECSWorld:setBorder(w, h)
+    self.border = {0, 0, w, h}
+end
+
+---@param e ecs.Entity
+function ECSWorld:addEntity(e)
+    self.entities:addBuffered(e)
+end
+
+---@param e ecs.Entity
+function ECSWorld:removeEntity(e)
+    e.___removed = true
+    self.entities:removeBuffered(e)
+end
+
+---@param e ecs.Entity
+local function entHas(e, k)
+    if rawget(e, k) ~= nil then return true end
+    local mt = getmetatable(e)
+    local base = mt and rawget(mt, "__index")
+    return type(base) == "table" and base[k] ~= nil
+end
+
+function ECSWorld:_rebuildComponentIndex()
+    local idx = self.componentIndex
+    for _, list in pairs(idx) do
+        table_clear(list)
+    end
+    local tracked = self.trackedComponents
+    for ti = 1, tracked.len do
+        local k = tracked[ti]
+        local list = idx[k]
+        for i = 1, self.entities.len do
+            local e = self.entities[i]
+            if entHas(e, k) then
+                list[#list + 1] = e
+            end
+        end
+    end
+end
+
+function ECSWorld:_rebuildPartitions()
+    for _, part in pairs(self.partitions) do
+        part:clear()
+    end
+    for i = 1, self.entities.len do
+        local e = self.entities[i]
+        local p = e.partitions
+        if p then
+            for j = 1, #p do
+                local pid = p[j]
+                local part = self.partitions[pid]
+                if not part then
+                    part = objects.Partition(PARTITION_CHUNKSIZE)
+                    self.partitions[pid] = part
+                end
+                part:add(e, e.x, e.y)
+            end
+        end
+    end
+end
+
+function ECSWorld:addSystemHandlers()
+    for i = 1, #self.systems do
+        g.addHandler(self.systems[i])
+    end
+end
+
+function ECSWorld:update(dt)
+    self.entities:flush()
+    self:_rebuildPartitions()
+    self:_rebuildComponentIndex()
+    g.call("preUpdate", dt)
+    for i = 1, self.entities.len do
+        local e = self.entities[i]
+        if not e.physics then
+            if e.vx then e.x = e.x + e.vx * dt end
+            if e.vy then e.y = e.y + e.vy * dt end
+        end
+        if e.vz then
+            e.vz = e.vz - consts.GRAVITY * dt
+            e.z = math.max(0, (e.z or 0) + e.vz * dt)
+        end
+        if e.health then
+            if e.maxHealth and e.health > e.maxHealth then
+                e.health = e.maxHealth
+            end
+            e._timeSinceDamaged = (e._timeSinceDamaged or 0xfffffffff) + dt
+            e._timeSinceHealed = (e._timeSinceHealed or 0xfffffffff) + dt
+            if e._damageLagAmount and e._damageLagAmount > 0 then
+                e._damageLagAmount = e._damageLagAmount * math.exp(-18 * dt)
+                if e._damageLagAmount < 0.01 then
+                    e._damageLagAmount = nil
+                end
+            end
+        end
+        if e.onUpdate then
+            e:onUpdate(dt)
+        end
+        if e.lifetime then
+            e.lifetime = e.lifetime - dt
+            if e.lifetime <= 0 then
+                self:removeEntity(e)
+            end
+        end
+    end
+    local border = self.border
+    if border then
+        for i = 1, self.entities.len do
+            local e = self.entities[i]
+            local cx = math.min(math.max(e.x, border[1]), border[3])
+            local cy = math.min(math.max(e.y, border[2]), border[4])
+            e.x, e.y = cx, cy
+        end
+    end
+    g.call("postUpdate", dt)
+    self.entities:flush()
+end
+
+local function getDrawY(e)
+    return e.y - (e.z or 0) / 2
+end
+
+local function sortOrder(a, b)
+    local ya = getDrawY(a) + (a.drawOrder or 0)
+    local yb = getDrawY(b) + (b.drawOrder or 0)
+    if ya == yb then return a.id < b.id end
+    return ya < yb
+end
+
+function ECSWorld:draw(transform)
+    g.setCurrentECS(self)
+    if transform then
+        self.backCanvas:start(transform)
+    end
+    g.call("preDraw")
+    if transform then
+        self.backCanvas:finish()
+    end
+
+    local list = {}
+    for i = 1, self.entities.len do
+        list[#list + 1] = self.entities[i]
+    end
+    table.sort(list, sortOrder)
+    for i = 1, #list do
+        local e = list[i]
+        g.drawEntity(e, e.x, getDrawY(e))
+    end
+
+    if transform then
+        self.frontCanvas:start(transform)
+    end
+    g.call("postDraw")
+    if transform then
+        self.frontCanvas:finish()
+    end
+end
+
+
+---@param component string
+---@return fun(table: ecs.Entity[], i?: integer):(integer,ecs.Entity)
+---@return ecs.Entity[]
+---@return integer
+function ECSWorld:iterate(component)
+    local list = self.componentIndex[component]
+    if not list then
+        list = {}
+        self.componentIndex[component] = list
+        self.trackedComponents:add(component)
+        for i = 1, self.entities.len do
+            local e = self.entities[i]
+            if entHas(e, component) then
+                list[#list + 1] = e
+            end
+        end
+    end
+    return ipairs(list)
+end
+
+
+
+---@param partitionId string
+---@param x number
+---@param y number
+---@param fn fun(ent: ecs.Entity)
+---@param range number
+function ECSWorld:iteratePartition(partitionId, x, y, fn, range)
+    local part = self.partitions[partitionId]
+    if part then
+        part:query(x, y, fn, range)
+    end
+end
+
+return ECSWorld
