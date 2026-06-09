@@ -263,6 +263,48 @@ end
 
 
 --------------------------------------------------------------------------------
+-- Fonts
+--------------------------------------------------------------------------------
+
+local bigCache = {}
+local smolCache = {}
+local fbCache = {}
+
+local function getFallbackFonts(size)
+    if not fbCache[size] then
+        fbCache[size] = love.graphics.newFont("assets/fonts/unifont-17.0.03.otf", size, "mono", size / 16)
+    end
+    return fbCache[size]
+end
+
+---@param size number? MUST BE MULTIPLE OF 16.
+---@return love.Font
+function g.getBigFont(size)
+    size = size or 16 -- genera
+    assert(size % 16 == 0, "Size must by divisible by 16")
+    if not bigCache[size] then
+        local f = love.graphics.newFont("assets/fonts/Smart 9h.ttf", size, "mono", 1)
+        f:setFallbacks(getFallbackFonts(size))
+        bigCache[size] = f
+    end
+    return bigCache[size]
+end
+
+---@param size number? MUST BE MULTIPLE OF 16.
+---@return love.Font
+function g.getSmallFont(size)
+    size = size or 16
+    assert(size % 16 == 0, "Size must by divisible by 16")
+    if not smolCache[size] then
+        local f = love.graphics.newFont("assets/fonts/Match 7h.ttf", size, "mono", 1)
+        f:setFallbacks(getFallbackFonts(size))
+        smolCache[size] = f
+    end
+    return smolCache[size]
+end
+
+
+--------------------------------------------------------------------------------
 -- Sound (SFX + BGM)
 --------------------------------------------------------------------------------
 do

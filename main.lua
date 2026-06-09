@@ -74,7 +74,7 @@ _G.loc = _G.localization.localize
 _G.interp = _G.localization.newInterpolator
 _G.iml = require("lib.iml.iml")
 _G.Kirigami = require("lib.kirigami")
--- _G.ui = require("src.ui.ui")
+_G.ui = require("src.ui.ui")
 
 _G.analytics = require("src.modules.analytics.analytics")
 _G.agentbridge = require("src.modules.agentbridge.agentbridge")
