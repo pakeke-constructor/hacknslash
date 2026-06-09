@@ -54,6 +54,7 @@ local shadow = {
 ---@field public image string?
 ---@field public health number?
 ---@field public maxHealth number?
+---@field public lifesteal number?
 ---@field public lifetime number?
 ---@field public shadow ecs.components.Shadow?
 ---@field public _timeSinceDamaged number?

@@ -17,6 +17,9 @@ local consts = require("src.consts")
 local sfx = require("src.sound.sfx")
 local bgm = require("src.sound.bgm")
 
+local sceneManager = require("src.scenes.sceneManager")
+local table_clear = require("table.clear")
+
 
 
 --------------------------------------------------------------------------------
@@ -106,6 +109,81 @@ function g.drawImageContained(imageName, x, y, w, h, rot)
     local centerY = y + (h - scaledH) / 2
     atlas:draw(quad, centerX + scaledW / 2, centerY + scaledH / 2, rot or 0, scale, scale, qw / 2, qh / 2)
 end
+
+
+
+
+local PALETTE = {
+    {197, 48, 61},
+    {89, 71, 29},
+    {79, 45, 93},
+    {54, 199, 222},
+    {200, 82, 164},
+    {29, 58, 81},
+    {17, 18, 17},
+    {99, 99, 99},
+    {46, 68, 209},
+    {166, 84, 27},
+    {95, 57, 39},
+    {29, 27, 14},
+    {205, 133, 59},
+    {8, 8, 8},
+    {255, 255, 255},
+    {54, 30, 25},
+    {20, 14, 18},
+    {39, 39, 71},
+    {39, 55, 24},
+    {188, 227, 233},
+    {72, 72, 72},
+    {0, 0, 0},
+    {53, 125, 210},
+    {35, 100, 73},
+    {241, 241, 30},
+    {124, 200, 42},
+    {100, 106, 53},
+    {77, 140, 33},
+    {44, 44, 44},
+    {140, 159, 169},
+    {124, 34, 34},
+    {225, 185, 123}
+}
+for i, c in ipairs(PALETTE) do
+    PALETTE[i] = objects.Color.fromByteRGBA(c[1], c[2], c[3])
+end
+
+---Snap a color to the nearest palette entry.
+---Uses 4th-power channel distance to deeply penalize large per-channel differences.
+---Preserves the input alpha.
+---@param r number red [0..1]
+---@param gg number green [0..1]
+---@param b number blue [0..1]
+---@param a number? alpha [0..1] (default 1)
+---@overload fun(color:objects.Color):objects.Color
+---@return objects.Color
+function g.snapToPalette(r, gg, b, a)
+    if type(r) == "table" then
+        r, gg, b, a = r[1], r[2], r[3], r[4]
+    end
+    a = a or 1
+    local best, bestDist = nil, math.huge
+    for _, c in ipairs(PALETTE) do
+        local rbar = (r + c.r) * 0.5
+        local dr, dg, db = r - c.r, gg - c.g, b - c.b
+        -- redmean: cheap perceptual RGB distance
+        local dist = (2 + rbar)*dr*dr + 4*dg*dg + (3 - rbar)*db*db
+        if dist < bestDist then
+            bestDist = dist
+            best = c
+        end
+    end
+    assert(best, "?")
+    return best:clone():setRGBA(nil, nil, nil, a)
+end
+
+
+
+
+
 
 
 
@@ -479,76 +557,193 @@ end
 
 
 
+--------------------------------------------------------------------------------
+-- Event Bus / Question Bus
+--------------------------------------------------------------------------------
 
-local PALETTE = {
-    {197, 48, 61},
-    {89, 71, 29},
-    {79, 45, 93},
-    {54, 199, 222},
-    {200, 82, 164},
-    {29, 58, 81},
-    {17, 18, 17},
-    {99, 99, 99},
-    {46, 68, 209},
-    {166, 84, 27},
-    {95, 57, 39},
-    {29, 27, 14},
-    {205, 133, 59},
-    {8, 8, 8},
-    {255, 255, 255},
-    {54, 30, 25},
-    {20, 14, 18},
-    {39, 39, 71},
-    {39, 55, 24},
-    {188, 227, 233},
-    {72, 72, 72},
-    {0, 0, 0},
-    {53, 125, 210},
-    {35, 100, 73},
-    {241, 241, 30},
-    {124, 200, 42},
-    {100, 106, 53},
-    {77, 140, 33},
-    {44, 44, 44},
-    {140, 159, 169},
-    {124, 34, 34},
-    {225, 185, 123}
-}
-for i, c in ipairs(PALETTE) do
-    PALETTE[i] = objects.Color.fromByteRGBA(c[1], c[2], c[3])
+local definedEvents = {}
+local questions = {}
+
+-- global handler caches: name -> {func, func, ...}, rebuilt each frame by g.pollHandlers.
+local handlerCache = {}
+
+function g.defineEvent(ev)
+    assert(not definedEvents[ev], "Event already defined: " .. ev)
+    definedEvents[ev] = true
+    handlerCache[ev] = {}
 end
 
----Snap a color to the nearest palette entry.
----Uses 4th-power channel distance to deeply penalize large per-channel differences.
----Preserves the input alpha.
----@param r number red [0..1]
----@param gg number green [0..1]
----@param b number blue [0..1]
----@param a number? alpha [0..1] (default 1)
----@overload fun(color:objects.Color):objects.Color
----@return objects.Color
-function g.snapToPalette(r, gg, b, a)
-    if type(r) == "table" then
-        r, gg, b, a = r[1], r[2], r[3], r[4]
+function g.isEvent(ev)
+    return definedEvents[ev] == true
+end
+
+function g.defineQuestion(question, reducer, defaultValue)
+    assert(not questions[question], "Question already defined: " .. question)
+    questions[question] = {
+        reducer = reducer,
+        defaultValue = defaultValue,
+    }
+    handlerCache[question] = {}
+end
+
+function g.getQuestionInfo(q)
+    return questions[q]
+end
+
+local _polling = false
+
+-- Add a handler table for this frame only. Only valid inside scene:pollHandlers.
+function g.addHandler(handler)
+    assert(_polling, "g.addHandler called outside of g.pollHandlers!")
+    for key, func in pairs(handler) do
+        local list = handlerCache[key]
+        assert(list, "Unknown event/question: " .. tostring(key))
+        list[#list + 1] = func
     end
-    a = a or 1
-    local best, bestDist = nil, math.huge
-    for _, c in ipairs(PALETTE) do
-        local rbar = (r + c.r) * 0.5
-        local dr, dg, db = r - c.r, gg - c.g, b - c.b
-        -- redmean: cheap perceptual RGB distance
-        local dist = (2 + rbar)*dr*dr + 4*dg*dg + (3 - rbar)*db*db
-        if dist < bestDist then
-            bestDist = dist
-            best = c
+end
+
+local _resetCallEventCounts
+
+-- Called once per frame. Clears all handlers, then asks the scene to re-register them.
+function g.pollHandlers()
+    _resetCallEventCounts()
+    for _, list in pairs(handlerCache) do
+        table_clear(list)
+    end
+    _polling = true
+    local sc = sceneManager.getCurrentScene()
+    if sc and sc.pollHandlers then
+        sc:pollHandlers()
+    end
+    _polling = false
+end
+
+
+local MAX_EVENT_CALLS_PER_FRAME = consts.MAX_EVENT_CALLS_PER_FRAME
+local EVENT_COUNTS = {} -- [event] -> integer
+
+function _resetCallEventCounts()
+    for k in pairs(EVENT_COUNTS) do
+        EVENT_COUNTS[k] = 0
+    end
+end
+
+-- Fire an event. No return value.
+-- Order: global handlers, then ent[ev].
+function g.call(ev, arg1, ...)
+    local ct = EVENT_COUNTS[ev] or 0
+    if ct >= MAX_EVENT_CALLS_PER_FRAME then
+        return
+    end
+    ct = ct + 1; EVENT_COUNTS[ev] = ct
+
+    local list = handlerCache[ev]
+    for i = 1, #list do
+        list[i](arg1, ...)
+    end
+
+    if type(arg1) ~= "table" then return end
+
+    if arg1[ev] then
+        arg1[ev](arg1, ...)
+    end
+end
+
+-- Ask a question. Returns reduced value.
+-- Order: global handlers, then ent[q].
+function g.ask(q, arg1, ...)
+    local t = questions[q]
+    if not t then
+        error("Invalid question: " .. tostring(q))
+    end
+    local reducer, val = t.reducer, t.defaultValue
+
+    local list = handlerCache[q]
+    for i = 1, #list do
+        val = reducer(val, list[i](arg1, ...))
+    end
+
+    if type(arg1) == "table" then
+        if arg1[q] then
+            val = reducer(val, arg1[q](arg1, ...))
         end
     end
-    assert(best, "?")
-    return best:clone():setRGBA(nil, nil, nil, a)
+
+    return val
 end
 
 
 
+--------------------------------------------------------------------------------
+-- Combat
+--------------------------------------------------------------------------------
+
+---@param ent ecs.Entity
+---@return boolean
+function g.isAlive(ent)
+    return not ent.___removed
+end
+
+---@param ent ecs.Entity
+---@param healAmount number
+---@param healerEnt ecs.Entity?
+function g.healEntity(ent, healAmount, healerEnt)
+    if not g.isAlive(ent) then return end
+
+    local oldHealth = ent.health
+    ent.health = math.min(ent.maxHealth, ent.health + healAmount)
+    local finalHeal = ent.health - oldHealth
+
+    if finalHeal > 0 then
+        ent._timeSinceHealed = 0
+        g.call("entityHealed", ent, finalHeal, healerEnt)
+        g.call("onHitHeal", healerEnt, finalHeal, ent)
+    end
+end
+
+---@param target ecs.Entity
+---@param damage number
+---@param attacker ecs.Entity?
+---@param ignoreQuestionBuses boolean?
+function g.damageEntity(target, damage, attacker, ignoreQuestionBuses)
+    if not g.isAlive(target) then return end
+
+    local finalDmg = math.max(0, damage)
+    if not ignoreQuestionBuses then
+        finalDmg = finalDmg * g.ask("getDamageTakenMultiplier", target, attacker)
+    end
+
+    target._damageLagAmount = (target._damageLagAmount or 0) + finalDmg
+
+    target.health = target.health - finalDmg
+    target._timeSinceDamaged = 0
+
+    if attacker then
+        g.call("onHitDamage", attacker, damage, target)
+    end
+    g.call("entityDamaged", target, damage)
+
+    if attacker and attacker.lifesteal then
+        g.healEntity(attacker, damage * attacker.lifesteal, attacker)
+    end
+
+    if target.health <= 0 then
+        g.killEntity(target, attacker)
+    end
+end
+
+---@param ent ecs.Entity
+---@param killer ecs.Entity?
+function g.killEntity(ent, killer)
+    if ent.___dead or not g.isAlive(ent) then return end
+    ent.___dead = true
+    ent.health = 0
+    g.call("entityDeath", ent, killer)
+    if killer then
+        g.call("onKill", killer, ent)
+    end
+    ent:getWorld():removeEntity(ent)
+end
 
 
 return g
