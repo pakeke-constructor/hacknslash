@@ -186,6 +186,18 @@ end
 
 
 
+--- Named gameplay colors, snapped to the palette for visual consistency.
+--- Each entry is an objects.Color (supports [1..4] indexing and :lerp).
+g.COLORS = {
+    DAMAGE = g.snapToPalette(1, 0.15, 0.15), -- red flash when an entity takes damage
+    HEAL   = g.snapToPalette(0.15, 1, 0.15), -- green flash when an entity is healed
+    POISON = g.snapToPalette(0.45, 0.85, 0.2), -- poison status tip on healthbars
+    BURN   = g.snapToPalette(1, 0.5, 0.1), -- burn status tip on healthbars
+}
+
+
+
+
 
 
 
@@ -576,10 +588,6 @@ function g.drawEntity(ent, x, y)
         lg.setColor(col[1], col[2], col[3], col[4] * (ent.alpha or 1))
         local rot = (ent.rot or 0) + bodyRot + (ent.damageJolt or 0) + walkWobble
         g.drawImageOffset(ent.image, x + (ent.ox or 0), y + (ent.oy or 0) + walkBounce, rot, sx, sy, 0.5, 0.95, ent.kx, ent.ky)
-
-        if ent.weapon then
-            drawWeapon(ent,x,y)
-        end
 
         if ent.frozenTime and ent.frozenTime > 0 then
             drawIceCube(ent, x,y, sx,sy)

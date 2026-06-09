@@ -10,12 +10,34 @@ local objects = require("src.modules.objects.objects")
 local Run = objects.Class("g:Run")
 
 
+---@class g.Deck: objects.Class
+local Deck = objects.Class("g:Deck")
+
+---@param typ string
+function Deck:init(typ)
+    --todo; store cards here
+    self.deckType = type
+end
+
+function Deck:tryPlayCard()
+    -- cycle across ringbuffe.
+    -- play card animation n stuff.
+    -- activate ability
+    return true
+end
+
+
+
 function Run:init()
     self.character = nil -- string
     self.difficulty = 0
     self.level = 1
     self.xp = 0
     self.money = 0
+
+    self.dashDeck = Deck("dash")
+    self.attackDeck = Deck("attack")
+    self.specialDeck = Deck("special")
 end
 
 
