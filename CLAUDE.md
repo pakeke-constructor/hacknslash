@@ -37,4 +37,6 @@ You'll be asked to bring over common systems from army-game, and you'll be expec
 
 If possible use `bash` copy tool to move files, as opposed to read_file/write_file, since it's much more token efficient.
 
+Do NOT use `bash` tool to check syntax-errors, run lua, because it will not work.
+
 

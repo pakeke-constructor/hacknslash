@@ -83,6 +83,8 @@ _G.textPopupService = require("src.modules.textPopupService")
 
 _G.g = require("src.g")
 
+_G.controlService = require("src.controlService")
+
 
 require("src.ev_q_defs")
 
@@ -126,6 +128,8 @@ function love.update(dt)
     if sc and sc.update then
         sc:update(dt)
     end
+    -- Must run last: clears this frame's input edges after gameplay has read them.
+    controlService.update(dt)
 end
 
 function love.quit()
@@ -153,6 +157,7 @@ function love.draw()
 end
 
 function love.keypressed(key, scancode, isrep)
+    controlService.keypressed(key, scancode, isrep)
     local sc = sceneManager.getCurrentScene()
     if sc and sc.keypressed then
         sc:keypressed(key, scancode, isrep)
@@ -160,6 +165,7 @@ function love.keypressed(key, scancode, isrep)
 end
 
 function love.keyreleased(key, scancode)
+    controlService.keyreleased(key, scancode)
     local sc = sceneManager.getCurrentScene()
     if sc and sc.keyreleased then
         sc:keyreleased(key, scancode)
@@ -167,6 +173,7 @@ function love.keyreleased(key, scancode)
 end
 
 function love.mousepressed(mx, my, button, istouch, presses)
+    controlService.mousepressed(mx, my, button)
     local sc = sceneManager.getCurrentScene()
     if sc and sc.mousepressed then
         sc:mousepressed(mx, my, button, istouch, presses)
@@ -174,6 +181,7 @@ function love.mousepressed(mx, my, button, istouch, presses)
 end
 
 function love.mousereleased(mx, my, button, istouch)
+    controlService.mousereleased(mx, my, button)
     local sc = sceneManager.getCurrentScene()
     if sc and sc.mousereleased then
         sc:mousereleased(mx, my, button, istouch)
