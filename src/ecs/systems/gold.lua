@@ -1,5 +1,6 @@
 local goldSystem = {}
 
+-- EXAMPLE USAGE..?
 controlService.on("ATTACK", function ()
     local ecs = g.tryGetECS()
     if not ecs then return end
@@ -22,14 +23,14 @@ function goldSystem:init()
 
 end
 
-function goldSystem:preUpdate()
-    local ecs = g.tryGetECS()
-    if not ecs then return end
+-- function goldSystem:preUpdate()
+--     local ecs = g.tryGetECS()
+--     if not ecs then return end
     
-    for _, ent in ecs:iterate("gold") do
+--     for _, ent in ecs:iterate("gold") do
         
-    end
-end
+--     end
+-- end
 
 function goldSystem:drawEntity(ent, x, y)
     if ent.gold then
