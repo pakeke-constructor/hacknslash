@@ -233,7 +233,7 @@ function ui.drawPanelOutlineThick(x, y, w, h)
     simpleUIPanel = simpleUIPanel or n9slice.new {
         image = g.getAtlas(),
         padding = 9,
-        quad = g.getImageQuad("simple_ui_panel")
+        quad = g.getImageQuad("simple_ui_panel_thick")
     }
     return simpleUIPanel:draw(x, y, w, h)
 end

@@ -7,15 +7,15 @@ Current `g.lua`/`ECSWorld` reference these but they were never copied:
 - `g.COLORS.POISON/BURN/DAMAGE/HEAL` — used [g.lua:512](src/g.lua#L512),[568](src/g.lua#L568). Src: armygame `g.lua:2566`.
 - `consts.BURN_DPS` — used [g.lua:513](src/g.lua#L513).
 - `drawWeapon(ent,x,y)` — called [g.lua:579](src/g.lua#L579). Src: armygame `g.lua:1745` (local fn).
-- `g.setCurrentECS` — called [ECSWorld.lua:176](src/ecs/ECSWorld.lua#L176).
+- ~~`g.setCurrentECS` — called [ECSWorld.lua:176](src/ecs/ECSWorld.lua#L176).~~ DONE
 - `ent.poisonAmount/burnTime/armor/frozenTime` — drawn in healthbar; need status_effects.
 
 ## Tier 1 — make it run + core swarm combat
 - `g.COLORS` + status glue: `applyBurn/Poison/Frozen`, `addArmor`, `BURN_DPS` + `ecs/systems/status_effects.lua` (86)
 - `drawWeapon` + `getEntityScale` wiring
-- ECS accessors: `g.setCurrentECS/getECS/tryGetECS`
+- ~~ECS accessors: `g.setCurrentECS/getECS/tryGetECS`~~ DONE
 - `ecs/systems/physics.lua` (124) + `g.setPos/getVel/knockback` — Box2D movement/collision/knockback (Physics component already exists)
-- `g.spawnEntity/defineEntity/transformEntity` + `entities/projectiles` (36)
+- ~~`g.spawnEntity/defineEntity`~~ DONE (stripped of squad/scope/buffs/armor/ai/physics coupling; transformEntity skipped) + `entities/projectiles` (36) STILL TODO
 
 ## Tier 2 — game loop (upgrades / abilities)
 - `ecs/systems/stats.lua` (99) + `g.defineStat/buffEntity`

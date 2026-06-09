@@ -11,6 +11,10 @@ g.defineEvent("preDraw")
 g.defineEvent("postDraw")
 
 
+-- Entity lifecycle
+g.defineEvent("entitySpawned")     -- (ent)
+
+
 -- Entity combat
 g.defineEvent("entityDamaged")   -- (target, damage)
 g.defineEvent("entityHealed") -- (ent, finalHeal, healerEnt)

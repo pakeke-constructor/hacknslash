@@ -5,6 +5,8 @@ local g = {}
 
 local lg = love.graphics
 
+local Entity = require("src.ecs.Entity")
+
 local AutoAtlas = require("lib.AutoAtlas.AutoAtlas")
 
 local atlas = AutoAtlas(2048, 2048)
@@ -715,6 +717,104 @@ function g.ask(q, arg1, ...)
     return val
 end
 
+
+
+--------------------------------------------------------------------------------
+-- ECS accessors
+--------------------------------------------------------------------------------
+
+local currentECS
+
+---@return ecs.ECSWorld
+function g.getECS()
+    return assert(currentECS, "ecs not active")
+end
+
+--- Non-asserting accessor: returns the active ECS, or nil when no ECS is running.
+---@return ecs.ECSWorld?
+function g.tryGetECS()
+    return currentECS
+end
+
+---@param ecs ecs.ECSWorld
+function g.setCurrentECS(ecs)
+    currentECS = ecs
+end
+
+
+--------------------------------------------------------------------------------
+-- Entity definition / spawning
+--------------------------------------------------------------------------------
+
+local ENTITY_DEFS = {} -- [id] -> metatable {__index = def}
+local ENTITY_LIST = {} -- ordered list of ids
+local currentEntityId = 0
+
+---@param id string
+---@param def table
+function g.defineEntity(id, def)
+    assert(not ENTITY_DEFS[id], "Duplicate entity type: " .. id)
+    assert(def.x == nil and def.y == nil and def.type == nil and def._world == nil, "x/y/type/_world are reserved")
+    for k in pairs(Entity) do
+        assert(def[k] == nil, "Entity def '" .. id .. "' cannot override base method: " .. k)
+    end
+    def.type = id
+    def.image = def.image or id
+    for k, v in pairs(Entity) do
+        def[k] = v
+    end
+    local mt = {__index = def}
+    ENTITY_DEFS[id] = mt
+    ENTITY_LIST[#ENTITY_LIST + 1] = id
+end
+
+--- we need this coz sometimes we need fields to be set immediately BEFORE qbuses or anything run
+---@param id string
+---@param x number
+---@param y number
+---@param initFunc (fun(e:ecs.Entity))?
+---@param ... unknown
+---@return ecs.Entity
+function g.spawnEntityWithInit(id, x, y, initFunc, ...)
+    local mt = ENTITY_DEFS[id]
+    assert(mt, "Unknown entity type: " .. tostring(id))
+    local ecs = g.getECS()
+    currentEntityId = currentEntityId + 1
+    local ent = setmetatable({
+        id = currentEntityId,
+        x = x, y = y, type = id,
+        _world = ecs,
+    }, mt)
+    if ent.init then
+        ent:init(...)
+    end
+    if initFunc then
+        initFunc(ent)
+    end
+    ecs:addEntity(ent)
+    g.call("entitySpawned", ent)
+    return ent
+end
+
+---@param id string
+---@param x number
+---@param y number
+---@param ... unknown
+---@return ecs.Entity
+function g.spawnEntity(id, x, y, ...)
+    return g.spawnEntityWithInit(id, x, y, nil, ...)
+end
+
+---@param id string
+---@return ecs.Components
+function g.getEntityDef(id)
+    local mt = ENTITY_DEFS[id]
+    return mt and mt.__index
+end
+
+function g.getEntityList()
+    return ENTITY_LIST
+end
 
 
 --------------------------------------------------------------------------------
