@@ -1,21 +1,22 @@
 
-
-# PROJECT: "Hack n Stack":
+<PROJECT>
+Hack n stack is a videogame built for PC.
 a combat hack n slash deckbuilder roguelike.
+</PROJECT>
 
-TLDR:
+<gameplay>
 - control a character in a top-down 2d world.
 - fight off swarms of enemies (vampire-survivors/brotato style)
 - use abilities: dash, blink, slash, and cast spells.
 - buy upgrades and level-up.
 
 See `GAME_DESIGN_DOC.md` for the more game details.
+</gameplay>
 
-
-## Tech stack:
+<tech_stack>
 Love2d, luaJIT. Custom libraries/modules all over.
+</tech_stack>
 
-## Architecture / Details:
 <architecture>
 - main.lua: entrypoint. All globals defined here.
 - src/g.lua: main API, all the important/central functions live here
@@ -30,20 +31,23 @@ Love2d, luaJIT. Custom libraries/modules all over.
 - src/consts.lua: Constants.
 </architecture>
 
+<localization>
+Do NOT add text to entities, blessings, or UI without wrapping it in a `loc()` call.
+Use `loc(txt, variables, context)` to translate text.
+Example:
+```lua
+BUTTON = loc("Pole button %{n}", {n = 5}, {
+  context = "As in, a button at the south pole"
+})
+```
+loc MUST be called at load-time, before the draw/update loop begins.
+</localization>
 
-## Current details:
-This project has only just started; barely any code exists.
-However, there's an older, different project in this repository: "Army-game", (folder `armygame/**`) which contains a TONNE of useful systems and code.
-There is a LOT of code/files in there, so don't look through them all.
-
-Look at `armygame/CLAUDE.md` to understand more about the architecture of army-game.
-
-
-## YOUR TASK, AS A CODING AGENT:
-You'll be asked to bring over common systems from army-game, and you'll be expected to use your own judgement to determine what needs to be brought over, and what doesn't.
-
-If possible use `bash` copy tool to move files, as opposed to read_file/write_file, since it's much more token efficient.
-
-Do NOT use `bash` tool to check syntax-errors, run lua, because it will not work.
-
+<IMPORTANT-INSTRUCTIONS>
+- IN ALL INTERACTIONS, BE EXTREMELY CONCISE, EVEN IF IT MEANS GRAMMATICAL INCORRECTNESS.
+- You are working with an experienced engineer. Be terse; don't over-explain.
+- Simple code > "correct" code. No unnecessary error handling, no overengineering for the sake of "best practices".
+- No complex one-liners, no deep nesting, no clever abstractions.
+- If a feature needs >300 new lines, stop and ask how to simplify.
+</IMPORTANT-INSTRUCTIONS>
 
