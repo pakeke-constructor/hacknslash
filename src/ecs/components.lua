@@ -35,6 +35,20 @@ local gold = {
     amount = 0,
 }
 
+-- ---@class ecs.components.Area
+-- ---@field public type string?
+-- ---@field public radius number?
+-- ---@field public width number?
+-- ---@field public height number?
+-- local area = {
+--     type = "circle", -- "circle"/"rectangle"
+--     -- for circle
+--     radius = 10,
+--     -- for rectangle
+--     width = 10,
+--     height = 10,
+-- }
+
 ---@class ecs.Components
 ---@field public color objects.Color?
 ---@field public alpha number? transparency
@@ -71,6 +85,7 @@ local gold = {
 ---@field public physics ecs.components.Physics?
 ---@field public partitions string[]?
 ---@field public gold ecs.components.Gold?
+-- ---@field public area ecs.components.Area?
 ---@field public ___removed boolean?
 ---@field public ___dead boolean?
 local ecs_Entity = {}
