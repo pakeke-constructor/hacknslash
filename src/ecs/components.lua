@@ -29,6 +29,11 @@ local shadow = {
     opacity = 0.6,
 }
 
+---@class ecs.components.Gold
+---@field public amount number?
+local gold = {
+    amount = 0,
+}
 
 ---@class ecs.Components
 ---@field public color objects.Color?
@@ -65,6 +70,7 @@ local shadow = {
 ---@field public onDraw fun(ent:ecs.Entity, x:number, y:number)?
 ---@field public physics ecs.components.Physics?
 ---@field public partitions string[]?
+---@field public gold ecs.components.Gold?
 ---@field public ___removed boolean?
 ---@field public ___dead boolean?
 local ecs_Entity = {}

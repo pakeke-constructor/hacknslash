@@ -62,6 +62,8 @@ g.defineEntity("player", {
     accelTime = DEFAULT_ACCEL_TIME,
     brakeTime = DEFAULT_BRAKE_TIME,
 
+    gold = {amount=1},
+
     onDraw = function (ent, x, y)
         lg.setColor(0.9, 0.95, 1)
         lg.circle("fill", x, y, 8)
