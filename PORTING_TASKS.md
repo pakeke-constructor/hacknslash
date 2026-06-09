@@ -21,11 +21,12 @@ Current `g.lua`/`ECSWorld` reference these but they were never copied:
 - `ecs/systems/stats.lua` (99) + `g.defineStat/buffEntity`
 - Scope system: `g.newScope/addCustomEffect` — per-entity buff/card-effect layering
 - `ecs/systems/ai.lua` (266) + `attacking.lua` (339) — trim ranged/squad logic
-- `g.explosion`, `g.spawnParticle` + particles module
+- `g.explosion`
 
 ## Tier 3 — polish / meta loop
 - `ecs/systems/shadows.lua` (25), `blood_system.lua` (50), `juice_system.lua` (313) + `juiceService.lua` — shake/hitstop/blood
 - HUD: `hoverService` (91), `choicePopupService` (31), `rewardPopupService` (47), `gameoverPopupService` (68)
+- `g.spawnParticle` + particles module
 - `devcmd.lua` (188) — dev console
 
 ## Skip (army-game-specific)

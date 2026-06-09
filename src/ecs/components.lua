@@ -33,6 +33,7 @@ local shadow = {
 ---@class ecs.Components
 ---@field public color objects.Color?
 ---@field public alpha number? transparency
+---@field public player boolean?
 ---@field public x number?
 ---@field public y number?
 ---@field public z number?
