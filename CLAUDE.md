@@ -16,12 +16,19 @@ See `GAME_DESIGN_DOC.md` for the more game details.
 Love2d, luaJIT. Custom libraries/modules all over.
 
 ## Architecture / Details:
-The game can be started in 1 of 2 modes: "Menu", or "Gameplay".
-Menu-mode: choose character, change settings, start run.
-Gameplay-mode: play the actual game.
-
-When starting a run, the lua-state is fully reset via `love.event.quit("restart")`.
-This ensures that during the run, we can have whatever variables we want ANYWHERE, and it's guaranteed not to cause stateful-issues with future runs.
+<architecture>
+- main.lua: entrypoint. All globals defined here.
+- src/g.lua: main API, all the important/central functions live here
+- src/scenes/sceneManager.lua: manages scenes
+- src/scenes/game_scene/game_scene.lua: Gameplay scene, contains an ECSWorld, does gameplay
+- src/scenes/menu_scene/menu_scene.lua: Menu, title, anything "outside" of the game
+- src/ecs/*: Entity-component-system stuff.
+- src/ecs/systems/*: ECS Systems. (projectile, ent movement, pathing, etc)
+- src/ecs/components.lua: All component type-definitions
+- src/modules/*: Extra standalone modules (analytics, lighting, richtext, typechecking)
+- src/Run.lua: Represents a run. (can be serialized)
+- src/consts.lua: Constants.
+</architecture>
 
 
 ## Current details:

@@ -13,7 +13,7 @@ local ECSWorld = objects.Class("ecs:ECSWorld")
 
 local PARTITION_CHUNKSIZE = 32
 
-function ECSWorld:init(systemNames)
+function ECSWorld:init()
     ---@type objects.BufferedSet<ecs.Entity>
     self.entities = objects.BufferedSet()
 
@@ -28,17 +28,65 @@ function ECSWorld:init(systemNames)
     ---@type table<string, objects.Partition<ecs.Entity>>
     self.partitions = {} -- [partitionId] -> objects.Partition<ecs.Entity> (created on demand)
 
-    -- Load systems (each system is a plain table of event/question handlers)
+    -- Load & initialize systems. Each system is a plain table of event/question
+    -- handler methods plus an optional :init(). Every ECSWorld gets its own
+    -- fresh instance so per-run state (eg self.foo) never leaks between worlds.
     self.systems = {}
-    for _, name in ipairs(systemNames or {}) do
-        self.systems[#self.systems + 1] = require("src.ecs.systems." .. name)
-    end
+    self:_loadSystems()
+end
 
-    -- Call initECS directly on systems (before pollHandlers has run)
-    for i = 1, #self.systems do
-        if self.systems[i].initECS then
-            self.systems[i].initECS(self)
+
+local SYSTEMS_DIR = "src/ecs/systems"
+
+-- Keys on a system table that are lifecycle/bookkeeping, never event handlers.
+local RESERVED_SYSTEM_KEYS = {
+    init = true,
+    ecs = true,
+    name = true,
+    _handlers = true,
+}
+
+-- Auto-discover every system module under SYSTEMS_DIR and load it.
+function ECSWorld:_loadSystems()
+    local files = love.filesystem.getDirectoryItems(SYSTEMS_DIR)
+    table.sort(files) -- deterministic load order
+    for _, file in ipairs(files) do
+        if file:sub(-4) == ".lua" then
+            self:_loadSystem(file:sub(1, -5))
         end
+    end
+end
+
+---@param name string filename of the system (without .lua)
+function ECSWorld:_loadSystem(name)
+    local module = require("src.ecs.systems." .. name)
+
+    -- Fresh per-world instance: copy the module's methods/fields onto a new
+    -- table so :init() state is isolated per ECSWorld.
+    local system = {}
+    for k, v in pairs(module) do
+        system[k] = v
+    end
+    system.ecs = self
+    system.name = name
+
+    -- Pre-bind every event/question handler to this instance, so handlers run
+    -- with the system as `self` and are closured once (not rebuilt each frame).
+    local handlers = {}
+    for key, fn in pairs(system) do
+        if type(fn) == "function" and not RESERVED_SYSTEM_KEYS[key] then
+            assert(g.isEvent(key) or g.getQuestionInfo(key),
+                "System '" .. name .. "' has handler '" .. key ..
+                "' which is not a defined event or question")
+            handlers[key] = function(...) return fn(system, ...) end
+        end
+    end
+    system._handlers = handlers
+
+    self.systems[#self.systems + 1] = system
+
+    if system.init then
+        system:init()
     end
 end
 
@@ -106,7 +154,7 @@ end
 
 function ECSWorld:addSystemHandlers()
     for i = 1, #self.systems do
-        g.addHandler(self.systems[i])
+        g.addHandler(self.systems[i]._handlers)
     end
 end
 
@@ -189,7 +237,9 @@ function ECSWorld:draw(transform)
     table.sort(list, sortOrder)
     for i = 1, #list do
         local e = list[i]
-        g.drawEntity(e, e.x, getDrawY(e))
+        local dy = getDrawY(e)
+        g.drawEntity(e, e.x, dy)
+        g.call("drawEntity", e, e.x, dy)
     end
 
     if transform then

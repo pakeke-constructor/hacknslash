@@ -14,6 +14,8 @@ g.defineEvent("postDraw")
 -- Entity lifecycle
 g.defineEvent("entitySpawned")     -- (ent)
 
+g.defineEvent("drawEntity")  -- (ent, x, y)
+
 
 -- Entity combat
 g.defineEvent("entityDamaged")   -- (target, damage)

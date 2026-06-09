@@ -21,6 +21,6 @@ consts.BURN_DPS = 2 * math.pi
 consts.GRAVITY = 300
 
 -- Max distinct event-type dispatches per frame (avoids infinite loops robustly).
-consts.MAX_EVENT_CALLS_PER_FRAME = 20
+consts.MAX_EVENT_CALLS_PER_FRAME = 2000
 
 return consts

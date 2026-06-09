@@ -18,3 +18,5 @@ function exampleSystem:drawEntity(ent, x,y, ...)
 end
 
 
+
+return exampleSystem
