@@ -23,4 +23,10 @@ consts.GRAVITY = 300
 -- Max distinct event-type dispatches per frame (avoids infinite loops robustly).
 consts.MAX_EVENT_CALLS_PER_FRAME = 2000
 
+
+consts.LOWER_FLOOR_DRAW_ORDER = -600
+consts.FLOOR_DRAW_ORDER = -500
+
+
+
 return consts
