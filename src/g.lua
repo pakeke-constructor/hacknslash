@@ -18,6 +18,7 @@ local sfx = require("src.sound.sfx")
 local bgm = require("src.sound.bgm")
 
 local sceneManager = require("src.scenes.sceneManager")
+local textPopupService = require("src.modules.textPopupService")
 local table_clear = require("table.clear")
 
 
@@ -743,6 +744,73 @@ function g.killEntity(ent, killer)
         g.call("onKill", killer, ent)
     end
     ent:getWorld():removeEntity(ent)
+end
+
+
+
+--------------------------------------------------------------------------------
+-- Scene / camera / coordinate spaces
+--------------------------------------------------------------------------------
+
+---@return table scene
+---@return string name
+function g.getCurrentScene()
+    return sceneManager.getCurrentScene()
+end
+
+--- Convert screen coordinates to world coordinates using the current scene's
+--- camera. Returns the input unchanged if the scene has no camera.
+---@param x number
+---@param y number
+---@return number x
+---@return number y
+function g.screenToWorld(x, y)
+    local scene = sceneManager.getCurrentScene()
+    if scene and scene.camera then
+        return scene.camera:toWorld(x, y)
+    end
+    return x, y
+end
+
+--- Convert world coordinates to screen coordinates using the current scene's
+--- camera. Returns the input unchanged if the scene has no camera.
+---@param x number
+---@param y number
+---@return number x
+---@return number y
+function g.worldToScreen(x, y)
+    local scene = sceneManager.getCurrentScene()
+    if scene and scene.camera then
+        return scene.camera:toScreen(x, y)
+    end
+    return x, y
+end
+
+
+--------------------------------------------------------------------------------
+-- Text popups
+--------------------------------------------------------------------------------
+
+--- Spawn a floating text popup anchored to a world position. The position is
+--- projected to the screen via the current camera; popups live in screen space.
+---@param x number world x
+---@param y number world y
+---@param richtxt string|richtext.ParsedText
+---@param args textPopupService.args?
+function g.addWorldTextPopup(x, y, richtxt, args)
+    local sx, sy = g.worldToScreen(x, y)
+    textPopupService.addPopup(sx, sy, richtxt, args)
+end
+
+--- Spawn a floating text popup at a fixed screen position.
+---@param x number screen x
+---@param y number screen y
+---@param richtxt string|richtext.ParsedText
+---@param args textPopupService.args?
+function g.addUITextPopup(x, y, richtxt, args)
+    -- TODO: ensure ui is wired up
+    x,y = ui.getUIScalingTransform():inverseTransformPoint(x,y)
+    textPopupService.addPopup(x, y, richtxt, args)
 end
 
 
