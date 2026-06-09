@@ -989,4 +989,15 @@ function g.AABB_isPointInRectangle(x1, y1, x2, y2, w, h)
         y1 >= y2 and y1 <= y2 + h
 end
 
+function g.AABB_isPointInEnt(x1, y1, ent)
+    if not ent.area then return end
+    if ent.area.type == "rectangle" then
+        local w, h =ent.area.width or 30, ent.area.height or 30
+        return g.AABB_isPointInRectangle(x1, y1,
+            ent.x+(ent.area.offsetX or 0)-ent.area.width/2,
+            ent.y+(ent.area.offsetY or 0)-ent.area.height/2,
+            w, h)
+    end
+end
+
 return g

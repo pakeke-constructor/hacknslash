@@ -1,20 +1,20 @@
 local areaSystem = {}
 
-function areaSystem:init()
+-- function areaSystem:init()
 
-end
+-- end
 
-function areaSystem:preUpdate()
-    local ecs = g.tryGetECS()
-    if not ecs then return end
+-- function areaSystem:preUpdate()
+--     local ecs = g.tryGetECS()
+--     if not ecs then return end
     
-    for _, ent in ecs:iterate("area") do
+--     for _, ent in ecs:iterate("area") do
         
-    end
-end
+--     end
+-- end
 
-function areaSystem:drawEntity(ent, x, y)
+-- function areaSystem:drawEntity(ent, x, y)
 
-end
+-- end
 
 return areaSystem

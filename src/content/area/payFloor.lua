@@ -1,19 +1,18 @@
-local function isEntOnFloor(ent, floor)
-    return g.AABB_isPointInRectangle(ent.x, ent.y, floor.x, floor.y, floor.width, floor.height)
-end
-
 g.defineEntity("payFloor", {
-    -- gold = {cost=1},
     goldCost = 10,
     goldCostCooldown = {},
     -- unlock = fn
 
-    width = 30,
-    height = 30,
+    area = {
+        type = "rectangle",
+        width = 40,
+        height = 40,
+    },
 
     onDraw = function (ent, x, y)
         lg.setColor(0.95, 0.95, 0.4, 0.3)
-        lg.rectangle("fill", x, y, ent.width, ent.height)
+        local w, h = ent.area.width, ent.area.height
+        lg.rectangle("fill", x-w/2, y-h/2, w, h)
 
         lg.setColor(1, 1, 0.7)
         richtext.printRichContainedNoWrap("$" .. ent.goldCost .. "/" .. "10", g.getSmallFont(16), x-10, y-25, 20, 20)
@@ -30,8 +29,7 @@ g.defineEntity("payFloor", {
 
         ecs:iteratePartition("holdCoin", ent.x, ent.y, function (targ)
             ent.goldCostCooldown[targ] = ent.goldCostCooldown[targ] or 0
-
-            if isEntOnFloor(targ, ent) then
+            if g.AABB_isPointInEnt(targ.x, targ.y, ent) then
                 if ent.goldCostCooldown[targ] <= 0 then
                     if g.trySpendGold(targ, 1) then
                         ent.goldCost = ent.goldCost - 1
@@ -42,6 +40,6 @@ g.defineEntity("payFloor", {
             end
 
             ent.goldCostCooldown[targ] = ent.goldCostCooldown[targ] - dt
-        end, 4)
+        end, 10)
     end
 })
