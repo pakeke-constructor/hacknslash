@@ -759,7 +759,11 @@ function g.defineEntity(id, def)
         assert(def[k] == nil, "Entity def '" .. id .. "' cannot override base method: " .. k)
     end
     def.type = id
-    def.image = def.image or id
+    -- Auto-assign a sprite named after the entity id, unless the entity renders
+    -- itself via a custom onDraw (in which case it needs no sprite).
+    if def.image == nil and not def.onDraw then
+        def.image = id
+    end
     for k, v in pairs(Entity) do
         def[k] = v
     end
