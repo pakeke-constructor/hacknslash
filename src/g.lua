@@ -738,6 +738,85 @@ function g.setCurrentECS(ecs)
 end
 
 
+
+
+--------------------------------------------------------------------------------
+-- Cards
+--------------------------------------------------------------------------------
+
+local CARD_DEFS = {} -- [id] -> def table (see card API in notes/SKAHD_TASKS.md)
+local CARD_LIST = {} -- ordered list of ids
+
+---@class g.Card: objects.Class
+---@field cardId string
+---@field def table
+local Card = objects.Class("g:Card")
+
+---@return number
+function Card:getCost()
+    local def = self.def
+    local cost = def.cost or 0
+    if def.getCostModifier then
+        cost = cost + def.getCostModifier(self)
+    end
+    return cost
+end
+
+--- Fires the once-only cast hook. Per-player hooks (onCastPlayer) get wired up
+--- once a player-iteration API exists.
+function Card:cast()
+    if self.def.onCast then
+        self.def.onCast(self)
+    end
+end
+
+---@class g.CardDef
+---@field cost number
+---@field getCostModifier (fun(card: g.Card): number)? Returns a cost delta applied on top of `cost`.
+---@field init (fun(card: g.Card, ...: any): any)? Runs once per instance; receives g.newCardInstance's extra args.
+---@field drawCastPreview (fun(card: g.Card, player: ecs.Entity))? Preview drawn once while casting.
+---@field drawCastPreviewPlayer (fun(card: g.Card, player: ecs.Entity))? Preview drawn per player while casting.
+---@field onCast (fun(card: g.Card))? Fires once on cast, regardless of player count.
+---@field onCastPlayer (fun(card: g.Card, player: ecs.Entity))? Fires once per player on cast.
+
+---@param card_id string
+---@param ctype g.CardDef
+function g.defineCard(card_id, ctype)
+    assert(not CARD_DEFS[card_id], "Duplicate card type: " .. card_id)
+    CARD_DEFS[card_id] = ctype
+    CARD_LIST[#CARD_LIST + 1] = card_id
+end
+
+---@param card_id string
+---@return table?
+function g.getCardDef(card_id)
+    return CARD_DEFS[card_id]
+end
+
+function g.getCardList()
+    return CARD_LIST
+end
+
+--- Creates a new card instance. Extra args are forwarded to the def's init.
+---@param card_id string
+---@param ... unknown
+---@return g.Card
+function g.newCardInstance(card_id, ...)
+    local def = CARD_DEFS[card_id]
+    assert(def, "Unknown card type: " .. tostring(card_id))
+    local card = Card()
+    card.cardId = card_id
+    card.def = def
+    if def.init then
+        def.init(card, ...)
+    end
+    return card
+end
+
+
+
+
+
 --------------------------------------------------------------------------------
 -- Entity definition / spawning
 --------------------------------------------------------------------------------
