@@ -14,6 +14,3 @@ It's cool and all having a champ-identity; but do the champs actually FIT with t
 
 
 
-
-
-

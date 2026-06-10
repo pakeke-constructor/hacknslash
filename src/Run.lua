@@ -59,7 +59,8 @@ function Run:init()
     self.difficulty = 0
     self.level = 1
     self.xp = 0
-    self.money = 0
+    self.mana = 0
+    self.maxMana = 10
 
     self.dashDeck = Deck("dash")
     self.attackDeck = Deck("attack")
