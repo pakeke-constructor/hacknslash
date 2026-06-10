@@ -1022,6 +1022,49 @@ function g.killEntity(ent, killer)
 end
 
 
+--- Set an entity's position. For physics entities, also teleports the Box2D
+--- body (otherwise the physics readback overwrites x/y next frame).
+---@param ent ecs.Entity
+---@param x number
+---@param y number
+function g.setPos(ent, x, y)
+    ent.x = x
+    ent.y = y
+    if ent.physics then
+        local world = ent:getWorld()
+        local sys = world and world:getSystem("physics")
+        local body = sys and sys.bodies[ent]
+        if body then
+            body:setPosition(x + ent.physics.ox, y + ent.physics.oy)
+        end
+    end
+end
+
+--- Apply a knockback impulse pushing `ent` away from (x, y). Stored separately
+--- from vx/vy and decays over time (see ECSWorld:update). Works for both
+--- physics and non-physics entities via g.getVel.
+---@param ent ecs.Entity
+---@param x number
+---@param y number
+---@param strength number
+function g.knockback(ent, x, y, strength)
+    local dx, dy = ent.x - x, ent.y - y
+    local dist = math.sqrt(dx * dx + dy * dy)
+    if dist < 0.001 then dx, dy = 0, -1; dist = 1 end
+    ent._knockVx = (ent._knockVx or 0) + dx / dist * strength
+    ent._knockVy = (ent._knockVy or 0) + dy / dist * strength
+end
+
+--- Total requested velocity: base movement (vx/vy) plus any active knockback.
+--- This is the desired velocity, not the achieved one (physics may block it).
+---@param ent ecs.Entity
+---@return number vx, number vy
+function g.getVel(ent)
+    return (ent.vx or 0) + (ent._knockVx or 0),
+           (ent.vy or 0) + (ent._knockVy or 0)
+end
+
+
 
 --------------------------------------------------------------------------------
 -- Scene / camera / coordinate spaces

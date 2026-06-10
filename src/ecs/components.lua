@@ -59,6 +59,8 @@ local area = {
 ---@field public vx number?
 ---@field public vy number?
 ---@field public vz number?
+---@field public _knockVx number?
+---@field public _knockVy number?
 ---@field public rot number?
 ---@field public sx number?
 ---@field public sy number?

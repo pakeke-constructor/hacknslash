@@ -21,6 +21,8 @@ g.defineEntity("basic_demon", {
 
     moveSpeed = DEMON_SPEED,
 
+    physics = { shape = "circle", radius = 6, mass = 1 },
+
     onUpdate = function (ent, dt)
         local target = closestPlayer(ent)
         if not target then

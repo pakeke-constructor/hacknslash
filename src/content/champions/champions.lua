@@ -67,6 +67,8 @@ g.defineEntity("basic_champion", {
     gold = 0,
     partitions = {"player"},
 
+    physics = { shape = "circle", radius = 7, mass = 1 },
+
     onUpdate = function (ent, dt)
         doPlayerMovement(ent, dt)
     end

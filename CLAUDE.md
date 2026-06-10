@@ -41,9 +41,12 @@ Love2d, luaJIT. Custom libraries/modules all over.
 </architecture>
 
 <reference-project>
-In this repository, there is a reference project called `army_game`.
-It is in the directory `army_game/**`.
+In this repository, there is a reference project called `armygame`, which is gitignored.
+It is in the directory `armygame/**`.
 This project is very different to hack-n-slash, but it uses a lot of the same tech, and a lot of the same ideas. To learn more about it, read it's CLAUDE.md.
+
+You may be asked to reference files/systems from armygame, or port systems over.
+In this case, you should read `armygame/CLAUDE.md` first, and navigate from there.
 <reference-project>
 
 <localization>

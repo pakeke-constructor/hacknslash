@@ -34,6 +34,7 @@ function ECSWorld:init()
     -- handler methods plus an optional :init(). Every ECSWorld gets its own
     -- fresh instance so per-run state (eg self.foo) never leaks between worlds.
     self.systems = {}
+    self.systemsByName = {} -- [name] -> system, for O(1) getSystem
     self:_loadSystems()
 end
 
@@ -86,6 +87,7 @@ function ECSWorld:_loadSystem(name)
     system._handlers = handlers
 
     self.systems[#self.systems + 1] = system
+    self.systemsByName[name] = system
 
     if system.init then
         system:init()
@@ -167,6 +169,13 @@ function ECSWorld:getPlayers()
 end
 
 
+---@param name string filename of the system (without .lua)
+---@return ecs.System?
+function ECSWorld:getSystem(name)
+    return self.systemsByName[name]
+end
+
+
 function ECSWorld:update(dt)
     self.entities:flush()
     self:_rebuildPartitions()
@@ -179,8 +188,17 @@ function ECSWorld:update(dt)
             self.players[#self.players + 1] = e
         end
         if not e.physics then
-            if e.vx then e.x = e.x + e.vx * dt end
-            if e.vy then e.y = e.y + e.vy * dt end
+            local vx, vy = g.getVel(e)
+            if vx ~= 0 then e.x = e.x + vx * dt end
+            if vy ~= 0 then e.y = e.y + vy * dt end
+        end
+        if e._knockVx then
+            local decay = math.exp(-10 * dt)
+            e._knockVx = e._knockVx * decay
+            e._knockVy = e._knockVy * decay
+            if math.abs(e._knockVx) < 0.5 and math.abs(e._knockVy) < 0.5 then
+                e._knockVx, e._knockVy = nil, nil
+            end
         end
         if e.vz then
             e.vz = e.vz - consts.GRAVITY * dt
