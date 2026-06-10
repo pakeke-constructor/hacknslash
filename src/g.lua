@@ -897,6 +897,9 @@ function g.defineEntity(id, def)
     ENTITY_LIST[#ENTITY_LIST + 1] = id
 end
 
+
+local entInitTc = typecheck.assert("string","number","number")
+
 --- we need this coz sometimes we need fields to be set immediately BEFORE qbuses or anything run
 ---@param id string
 ---@param x number
@@ -905,6 +908,7 @@ end
 ---@param ... unknown
 ---@return ecs.Entity
 function g.spawnEntityWithInit(id, x, y, initFunc, ...)
+    entInitTc(id,x,y)
     local mt = ENTITY_DEFS[id]
     assert(mt, "Unknown entity type: " .. tostring(id))
     local ecs = g.getECS()
