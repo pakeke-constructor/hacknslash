@@ -27,9 +27,9 @@ g.defineEntity("payFloor", {
             return
         end
 
-        ecs:iteratePartition("holdCoin", ent.x, ent.y, function (targ)
+        ecs:iteratePartition("player", ent.x, ent.y, function (targ)
             ent.goldCostCooldown[targ] = ent.goldCostCooldown[targ] or 0
-            if g.AABB_isPointInEnt(targ.x, targ.y, ent) then
+            if helper.AABB_isPointInEnt(targ.x, targ.y, ent) then
                 if ent.goldCostCooldown[targ] <= 0 then
                     if g.trySpendGold(targ, 1) then
                         ent.goldCost = ent.goldCost - 1

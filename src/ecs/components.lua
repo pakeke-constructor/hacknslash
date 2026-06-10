@@ -29,12 +29,6 @@ local shadow = {
     opacity = 0.6,
 }
 
----@class ecs.components.Gold
----@field public amount number?
-local gold = {
-    amount = 0,
-}
-
 ---@class ecs.components.Area
 ---@field public type "rectangle"|"circle?
 ---@field public radius number?
@@ -86,7 +80,7 @@ local area = {
 ---@field public onDraw fun(ent:ecs.Entity, x:number, y:number)?
 ---@field public physics ecs.components.Physics?
 ---@field public partitions string[]?
----@field public gold ecs.components.Gold?
+---@field public gold number?
 ---@field public area ecs.components.Area?
 ---@field public ___removed boolean?
 ---@field public ___dead boolean?

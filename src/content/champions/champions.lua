@@ -62,8 +62,8 @@ g.defineEntity("player", {
     accelTime = DEFAULT_ACCEL_TIME,
     brakeTime = DEFAULT_BRAKE_TIME,
 
-    gold = {amount=1},
-    partitions = {"holdCoin"},
+    gold = 0,
+    partitions = {"player"},
 
     onDraw = function (ent, x, y)
         lg.setColor(0.9, 0.95, 1)

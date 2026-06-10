@@ -34,7 +34,7 @@ end
 
 function goldSystem:drawEntity(ent, x, y)
     if ent.gold then
-        for i=1, ent.gold.amount do
+        for i=1, ent.gold do
             g.drawImage("gold_coin", x, y - 20 - i*5, 0, 0.5, 0.5)
         end
     end
