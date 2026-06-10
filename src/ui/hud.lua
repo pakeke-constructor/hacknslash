@@ -17,7 +17,7 @@ end
 
 -- Draws the first (top) card of a deck, centered in its slot region.
 local function drawDeckCard(deck, slot)
-    local card = deck.drawPile[1]
+    local card = deck.drawPile:peek()
     if card then
         g.drawCard(card, slot:getCenter())
     end
