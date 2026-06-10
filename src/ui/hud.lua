@@ -10,14 +10,14 @@ local function drawManaBar(run, region)
     lg.setColor(0, 0, 0, 0.5)
     lg.rectangle("fill", x, y, w, h)
     lg.setColor(0.3, 0.5, 1, 1)
-    lg.rectangle("fill", x, y, w, h*frac)
+    lg.rectangle("fill", x, y, w, math.min(h, h*frac))
     lg.setColor(1, 1, 1, 1)
     lg.rectangle("line", x, y, w, h)
 end
 
 -- Draws the first (top) card of a deck, centered in its slot region.
 local function drawDeckCard(deck, slot)
-    local card = deck.drawPile[1]
+    local card = deck.drawPile:peek()
     if card then
         g.drawCard(card, slot:getCenter())
     end

@@ -55,8 +55,10 @@ end
 
 
 
-g.defineEntity("player", {
+g.defineEntity("basic_champion", {
     player = true,
+
+    image = "basic_champion",
 
     moveSpeed = DEFAULT_SPEED,
     accelTime = DEFAULT_ACCEL_TIME,
@@ -64,11 +66,6 @@ g.defineEntity("player", {
 
     gold = 0,
     partitions = {"player"},
-
-    onDraw = function (ent, x, y)
-        lg.setColor(0.9, 0.95, 1)
-        lg.circle("fill", x, y, 8)
-    end,
 
     onUpdate = function (ent, dt)
         doPlayerMovement(ent, dt)

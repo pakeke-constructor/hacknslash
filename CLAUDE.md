@@ -31,7 +31,12 @@ Love2d, luaJIT. Custom libraries/modules all over.
 - src/ecs/*: Entity-component-system stuff.
 - src/ecs/systems/*: ECS Systems. (projectile, ent movement, pathing, etc)
 - src/ecs/components.lua: All component type-definitions
+- src/ev_q_defs.lua: Contains all event definitions and question-definitions
 - src/Run.lua: Represents a run. (can be serialized)
+- src/ui/ui.lua: ui api surface.
+- src/ui/hud.lua: HUD for game_scene
+- src/lib/iml/iml.lua: The main "input library", immediate-mode, panel library
+- src/lib/kirigami.lua: Exposes Kirigami() class, this is how ALL UI layouts should be done. See examples if you are confused.
 - src/consts.lua: Constants.
 </architecture>
 

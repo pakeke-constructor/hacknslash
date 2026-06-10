@@ -32,6 +32,7 @@ function Deck:reshuffle()
     for _, c in ipairs(self.discardPile) do
         buf:add(c)
     end
+    self.discardPile:clear()
     helper.shuffle(buf)
     self.drawPile = buf
 end
@@ -41,6 +42,9 @@ local function forcePlayCard(self)
     local card = self.drawPile:pop()
     self.discardPile:add(card)
     card:cast()
+    if self.drawPile:size() <= 0 then
+        self:reshuffle()
+    end
 end
 
 function Deck:update(dt)
@@ -49,7 +53,17 @@ end
 function Deck:tryPlayCard()
     -- play card animation n stuff.
     -- activate ability
-    return true
+    if self.drawPile:size() <= 0 then return end -- no cards in deck!
+    local mana = self.drawPile:peek():getCost()
+    local ret = false
+    if g.trySpendMana(mana) then
+        forcePlayCard(self)
+        ret = true
+    end
+    if self.drawPile:size() <= 0 then
+        self:reshuffle()
+    end
+    return ret
 end
 
 
@@ -69,7 +83,7 @@ end
 
 
 function Run:update(dt)
-    self.mana = self.mana + consts.MANA_REGEN_PER_SECOND*dt
+    self.mana = math.min(self.mana + consts.MANA_REGEN_PER_SECOND*dt, self.maxMana)
 end
 
 

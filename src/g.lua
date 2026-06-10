@@ -842,6 +842,22 @@ function g.getRun()
     return currentRun
 end
 
+---@return number
+function g.getMana()
+    return assert(currentRun).mana
+end
+
+---@param amount number
+---@return boolean
+function g.trySpendMana(amount)
+    local run = assert(currentRun)
+    if amount <= run.mana then
+        run.mana = run.mana - amount
+        return true
+    end
+    return false
+end
+
 ---@return boolean
 function g.hasRun()
     return currentRun ~= nil
@@ -1039,6 +1055,20 @@ function g.worldToScreen(x, y)
         return scene.camera:toScreen(x, y)
     end
     return x, y
+end
+
+--- Returns the world-space region currently visible to the camera, as a
+--- kirigami Region (x,y = top-left corner, w,h = size in world units).
+---@return kirigami.Region
+function g.getCameraRegion()
+    local scene = sceneManager.getCurrentScene()
+    local sw, sh = lg.getDimensions()
+    if not (scene and scene.camera) then
+        return Kirigami(0, 0, sw, sh)
+    end
+    local x0, y0 = scene.camera:toWorld(0, 0)
+    local x1, y1 = scene.camera:toWorld(sw, sh)
+    return Kirigami(x0, y0, x1 - x0, y1 - y0)
 end
 
 

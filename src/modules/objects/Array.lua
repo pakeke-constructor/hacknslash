@@ -92,6 +92,13 @@ end
 -- alias
 Array.pop = Array.remove
 
+
+---@return T
+function Array:peek()
+    return self[self.len]
+end
+
+
 ---Pops item from array by swapping it with the last item
 ---this operation is O(1)
 ---
