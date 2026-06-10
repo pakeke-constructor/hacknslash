@@ -1069,4 +1069,28 @@ function g.addUITextPopup(x, y, richtxt, args)
 end
 
 
+--------------------------------------------------------------------------------
+-- Gold Infra
+--------------------------------------------------------------------------------
+
+--- Adds gold to an entity
+--- @param ent ecs.Entity
+--- @param amount number
+function g.addGold(ent, amount)
+    if not ent.gold then return end
+    ent.gold = (ent.gold or 0) + amount
+end
+
+--- Try to spend gold from an entity
+--- @param ent ecs.Entity
+--- @param amount number
+function g.trySpendGold(ent, amount)
+    if not ent.gold then return end
+    if ent.gold >= amount then
+        ent.gold = ent.gold - amount
+        return true
+    end
+    return false
+end
+
 return g

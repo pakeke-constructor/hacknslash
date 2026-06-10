@@ -29,6 +29,25 @@ local shadow = {
     opacity = 0.6,
 }
 
+---@class ecs.components.Area
+---@field public type "rectangle"|"circle?
+---@field public radius number?
+---@field public width number?
+---@field public height number?
+local area = {
+    type = "rectangle", -- "circle"/"rectangle"
+    offsetX = 0,
+    offsetY = 0,
+    -- for circle
+    radius = 10,
+    -- for rectangle
+    width = 10,
+    height = 10,
+    -- player stuff
+    playerUpdate = function (ent, player, dt) end,
+    playerCooldown = 0.3, -- cooldown for playerUpdate for EACH player
+    playerCooldownTable = {},
+}
 
 ---@class ecs.Components
 ---@field public color objects.Color?
@@ -65,6 +84,8 @@ local shadow = {
 ---@field public onDraw fun(ent:ecs.Entity, x:number, y:number)?
 ---@field public physics ecs.components.Physics?
 ---@field public partitions string[]?
+---@field public gold number?
+---@field public area ecs.components.Area?
 ---@field public ___removed boolean?
 ---@field public ___dead boolean?
 local ecs_Entity = {}
