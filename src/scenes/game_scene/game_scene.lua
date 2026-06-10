@@ -42,6 +42,8 @@ end
 
 function game_scene:update(dt)
     g.pollHandlers()
+    local run = assert(g.getRun())
+    run:update(dt)
     self.world:update(dt)
 end
 

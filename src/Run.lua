@@ -69,6 +69,7 @@ end
 
 
 function Run:update(dt)
+    self.mana = self.mana + consts.MANA_REGEN_PER_SECOND*dt
 end
 
 
