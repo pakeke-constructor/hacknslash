@@ -40,7 +40,7 @@ end
 local function forcePlayCard(self)
     local card = self.drawPile:pop()
     self.discardPile:add(card)
-    print("card played: ", card)
+    card:cast()
 end
 
 function Deck:update(dt)
@@ -84,11 +84,12 @@ function Run:serialize()
         difficulty = self.difficulty,
         level = self.level,
         xp = self.xp,
-        money = self.money,
+        maxMana = self.maxMana,
     }
 end
 
----@param data {character: string?, difficulty: integer?, level: integer?, xp: number?, money: number?}?
+
+---@param data {character: string?, difficulty: integer?, level: integer?, xp: number?, maxMana: number?}?
 ---@return g.Run
 function Run.deserialize(data)
     local run = Run()
@@ -99,7 +100,7 @@ function Run.deserialize(data)
     run.difficulty = data.difficulty or run.difficulty
     run.level = data.level or run.level
     run.xp = data.xp or run.xp
-    run.money = data.money or run.money
+    run.maxMana = data.maxMana or run.maxMana
     return run
 end
 

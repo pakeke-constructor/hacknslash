@@ -771,6 +771,7 @@ function Card:cast()
 end
 
 ---@class g.CardDef
+---@field image string
 ---@field cost number
 ---@field getCostModifier (fun(card: g.Card): number)? Returns a cost delta applied on top of `cost`.
 ---@field init (fun(card: g.Card, ...: any): any)? Runs once per instance; receives g.newCardInstance's extra args.
@@ -811,6 +812,11 @@ function g.newCardInstance(card_id, ...)
         def.init(card, ...)
     end
     return card
+end
+
+---@param card g.Card
+function g.drawCard(card, x,y, r)
+    g.drawImage(card.def.image, x,y)
 end
 
 
