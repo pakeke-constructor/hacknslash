@@ -45,6 +45,15 @@ function game_scene:update(dt)
     local run = assert(g.getRun())
     run:update(dt)
     self.world:update(dt)
+
+    local C = controlService.CONTROLS
+    if controlService.wasJustPressed(C.ATTACK) then
+        run.attackDeck:tryPlayCard()
+    elseif controlService.wasJustPressed(C.DASH) then
+        run.dashDeck:tryPlayCard()
+    elseif controlService.wasJustPressed(C.SPECIAL) then
+        run.specialDeck:tryPlayCard()
+    end
 end
 
 function game_scene:keypressed(key)

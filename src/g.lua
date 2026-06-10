@@ -842,6 +842,22 @@ function g.getRun()
     return currentRun
 end
 
+---@return number
+function g.getMana()
+    return assert(currentRun).mana
+end
+
+---@param amount number
+---@return boolean
+function g.trySpendMana(amount)
+    local run = assert(currentRun)
+    if amount <= run.mana then
+        run.mana = run.mana - amount
+        return true
+    end
+    return false
+end
+
 ---@return boolean
 function g.hasRun()
     return currentRun ~= nil

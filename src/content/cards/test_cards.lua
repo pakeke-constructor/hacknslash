@@ -5,12 +5,18 @@ g.defineCard("basic_slash", {
     onCastPlayer = function(card, player)
         print("todo")
     end,
+    onCast = function(card, player)
+        print("todo")
+    end,
 })
 
 g.defineCard("basic_shield", {
     image = "basic_shield",
     cost = 1,
     onCastPlayer = function(card, player)
+        print("todo")
+    end,
+    onCast = function(card, player)
         print("todo")
     end,
 })
@@ -21,12 +27,18 @@ g.defineCard("radial_slash", {
     onCastPlayer = function(card, player)
         print("todo")
     end,
+    onCast = function(card, player)
+        print("todo")
+    end,
 })
 
 g.defineCard("heroic_dash", {
     image = "heroic_dash",
     cost = 1,
     onCastPlayer = function(card, player)
+        print("todo")
+    end,
+    onCast = function(card, player)
         print("todo")
     end,
 })
@@ -37,4 +49,9 @@ g.defineCard("wing_dash", {
     onCastPlayer = function(card, player)
         print("todo")
     end,
+    onCast = function(card, player)
+        print("todo")
+    end,
 })
+
+
