@@ -7,6 +7,7 @@ local MUL = reducers.MULTIPLY
 -- Core frame flow (dispatched by ECSWorld)
 g.defineEvent("preUpdate")
 g.defineEvent("postUpdate")
+g.defineEvent("perSecondUpdate") -- (dt) called once per second
 g.defineEvent("preDraw")
 g.defineEvent("postDraw")
 

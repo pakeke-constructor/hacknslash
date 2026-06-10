@@ -219,6 +219,11 @@ function ECSWorld:update(dt)
         end
     end
     g.call("postUpdate", dt)
+    self._secondAccum = (self._secondAccum or 0) + dt
+    if self._secondAccum >= 1 then
+        self._secondAccum = self._secondAccum - 1
+        g.call("perSecondUpdate", dt)
+    end
     self.entities:flush()
 end
 

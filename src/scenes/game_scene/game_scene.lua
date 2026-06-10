@@ -1,6 +1,7 @@
 local sceneManager = require("src.scenes.sceneManager")
 local ECSWorld = require("src.ecs.ECSWorld")
 local hud = require("src.ui.hud")
+local Camera = require("src.scenes.game_scene.camera")
 
 local game_scene = {}
 
@@ -22,6 +23,8 @@ function game_scene:enter()
     self.world = ECSWorld()
     g.setCurrentECS(self.world)
 
+    self.camera = Camera(CAMERA_SCALE)
+
     -- Lay down a bunch of ground textures across the play field.
     for gx = -GROUND_GRID_RADIUS, GROUND_GRID_RADIUS do
         for gy = -GROUND_GRID_RADIUS, GROUND_GRID_RADIUS do
@@ -40,6 +43,7 @@ function game_scene:leave()
     g.setRun(nil)
     self.world = nil
     self.player = nil
+    self.camera = nil
 end
 
 -- Re-registered every frame by g.pollHandlers so ECS systems can hook events.
@@ -52,6 +56,11 @@ function game_scene:update(dt)
     local run = assert(g.getRun())
     run:update(dt)
     self.world:update(dt)
+
+    if self.player then
+        self.camera.x, self.camera.y = self.player.x, self.player.y
+    end
+    self.camera:update()
 
     local C = controlService.CONTROLS
     if controlService.wasJustPressed(C.ATTACK) then
@@ -69,26 +78,11 @@ function game_scene:keypressed(key)
     end
 end
 
---- Camera transform: centers the player on screen at CAMERA_SCALE zoom.
----@return love.Transform
-function game_scene:getCameraTransform()
-    local w, h = lg.getDimensions()
-    local px, py = 0, 0
-    if self.player then
-        px, py = self.player.x, self.player.y
-    end
-    local t = love.math.newTransform()
-    t:translate(w / 2, h / 2)
-    t:scale(CAMERA_SCALE, CAMERA_SCALE)
-    t:translate(-px, -py)
-    return t
-end
-
 function game_scene:draw()
     lg.clear(GROUND_COLOR)
 
     lg.push()
-    lg.applyTransform(self:getCameraTransform())
+    lg.applyTransform(self.camera:getTransform())
     self.world:draw()
     lg.pop()
 
