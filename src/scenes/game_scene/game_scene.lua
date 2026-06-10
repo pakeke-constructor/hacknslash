@@ -25,6 +25,8 @@ function game_scene:enter()
         end
     end
 
+    g.spawnEntity("payFloor", 100, 0)
+
     -- The player starts at the center of the world.
     self.player = g.spawnEntity("player", 0, 0)
 end
