@@ -906,6 +906,12 @@ function helper.index(t, value)
     return nil
 end
 
+
+function helper.AABB_isPointInRectangle(x1, y1, x2, y2, w, h)
+    return x1 >= x2 and x1 <= x2 + w and
+        y1 >= y2 and y1 <= y2 + h
+end
+
 ---check if a point is inside an entity with an area component
 ---@param x1 number
 ---@param y1 number
@@ -915,7 +921,7 @@ function helper.AABB_isPointInEnt(x1, y1, ent)
     if not ent.area then return end
     if ent.area.type == "rectangle" then
         local w, h =ent.area.width or 30, ent.area.height or 30
-        return g.AABB_isPointInRectangle(x1, y1,
+        return helper.AABB_isPointInRectangle(x1, y1,
             ent.x+(ent.area.offsetX or 0)-ent.area.width/2,
             ent.y+(ent.area.offsetY or 0)-ent.area.height/2,
             w, h)

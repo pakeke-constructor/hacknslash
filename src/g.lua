@@ -980,13 +980,4 @@ function g.trySpendGold(ent, amount)
     return false
 end
 
---------------------------------------------------------------------------------
--- Area
---------------------------------------------------------------------------------
-
-function g.AABB_isPointInRectangle(x1, y1, x2, y2, w, h)
-    return x1 >= x2 and x1 <= x2 + w and
-        y1 >= y2 and y1 <= y2 + h
-end
-
 return g
