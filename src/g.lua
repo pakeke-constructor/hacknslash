@@ -815,8 +815,13 @@ function g.newCardInstance(card_id, ...)
 end
 
 ---@param card g.Card
-function g.drawCard(card, x,y, r)
-    g.drawImage(card.def.image, x,y)
+---@param x number
+---@param y number
+---@param rot number?
+---@param scale number?
+function g.drawCard(card, x,y, rot, scale)
+    scale = scale or 1
+    g.drawImage(card.def.image, x,y, r, scale,scale)
 end
 
 

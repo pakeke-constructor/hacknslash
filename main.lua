@@ -141,7 +141,9 @@ function love.draw()
     lg.setShader(subpixel.shader)
     local sc = sceneManager.getCurrentScene()
     if sc and sc.draw then
+        iml.beginFrame()
         sc:draw()
+        iml.endFrame()
     end
     textPopupService.draw()
     vignette.draw()

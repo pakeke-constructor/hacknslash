@@ -22,18 +22,22 @@ end
 local function drawDeckCard(deck, x, y)
     local card = deck.drawPile[1]
     if card then
-        g.drawCard(card, x + CARD_SIZE / 2, y + CARD_SIZE / 2)
+        g.drawCard(card, x+CARD_SIZE/2, y+CARD_SIZE/2)
     end
 end
 
 function hud.draw()
     local run = g.getRun()
     if not run then return end
+    local r = ui.getScreenRegion()
+    local _main,botRegion = r:splitVertical(3,1)
 
     drawManaBar(run)
 
     local _, h = lg.getDimensions()
     local y = h - CARD_SIZE - BOTTOM_MARGIN
+
+    local atk,dash,_,special = botRegion:splitHorizontal(1,1,4,1)
 
     -- attack, dash ...gap... special
     local x = MANA_BAR.x

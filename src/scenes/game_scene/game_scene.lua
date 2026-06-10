@@ -74,8 +74,10 @@ function game_scene:draw()
     self.world:draw()
     lg.pop()
 
+    ui.startUI()
     -- HUD draws in screen space, outside the camera transform.
     hud.draw()
+    ui.endUI()
 end
 
 return game_scene

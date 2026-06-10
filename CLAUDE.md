@@ -35,6 +35,12 @@ Love2d, luaJIT. Custom libraries/modules all over.
 - src/consts.lua: Constants.
 </architecture>
 
+<reference-project>
+In this repository, there is a reference project called `army_game`.
+It is in the directory `army_game/**`.
+This project is very different to hack-n-slash, but it uses a lot of the same tech, and a lot of the same ideas. To learn more about it, read it's CLAUDE.md.
+<reference-project>
+
 <localization>
 Do NOT add text to entities, blessings, or UI without wrapping it in a `loc()` call.
 Use `loc(txt, variables, context)` to translate text.
