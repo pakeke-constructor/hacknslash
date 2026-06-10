@@ -43,6 +43,10 @@ local area = {
     -- for rectangle
     width = 10,
     height = 10,
+    -- player stuff
+    playerUpdate = function (ent, player, dt) end,
+    playerCooldown = 0.3, -- cooldown for playerUpdate for EACH player
+    playerCooldownTable = {},
 }
 
 ---@class ecs.Components
