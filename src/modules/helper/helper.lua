@@ -142,7 +142,7 @@ helper.EASINGS = {
         return x ^ 3
     end,
     easeOutCubic = function (x)
-        return x ^ 0.7
+        return x ^ 1/3
     end,
     -- inout with overshoot at both ends
     ---@param x number
