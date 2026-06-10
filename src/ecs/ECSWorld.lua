@@ -19,6 +19,8 @@ function ECSWorld:init()
 
     self.data = {} -- system-storage
 
+    self.players = {} -- list of player entities, rebuilt each update
+
     self.backCanvas = PixelCanvas.new(love.graphics.getDimensions())
     self.frontCanvas = PixelCanvas.new(love.graphics.getDimensions())
     self.border = nil -- {0, 0, w, h} or nil for no border
@@ -158,13 +160,24 @@ function ECSWorld:addSystemHandlers()
     end
 end
 
+
+---@return ecs.Entity[]
+function ECSWorld:getPlayers()
+    return self.players
+end
+
+
 function ECSWorld:update(dt)
     self.entities:flush()
     self:_rebuildPartitions()
     self:_rebuildComponentIndex()
     g.call("preUpdate", dt)
+    table_clear(self.players)
     for i = 1, self.entities.len do
         local e = self.entities[i]
+        if e.player then
+            self.players[#self.players + 1] = e
+        end
         if not e.physics then
             if e.vx then e.x = e.x + e.vx * dt end
             if e.vy then e.y = e.y + e.vy * dt end
