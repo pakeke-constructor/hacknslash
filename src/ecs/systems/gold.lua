@@ -1,23 +1,23 @@
 local goldSystem = {}
 
 -- EXAMPLE USAGE..?
-controlService.on("ATTACK", function ()
-    local ecs = g.tryGetECS()
-    if not ecs then return end
+-- controlService.on("ATTACK", function ()
+--     local ecs = g.tryGetECS()
+--     if not ecs then return end
 
-    for _, ent in ecs:iterate("gold") do
-        g.addGold(ent, 1)
-    end
-end)
+--     for _, ent in ecs:iterate("gold") do
+--         g.addGold(ent, 1)
+--     end
+-- end)
 
-controlService.on("SPECIAL", function ()
-    local ecs = g.tryGetECS()
-    if not ecs then return end
+-- controlService.on("SPECIAL", function ()
+--     local ecs = g.tryGetECS()
+--     if not ecs then return end
 
-    for _, ent in ecs:iterate("gold") do
-        g.trySpendGold(ent, 2)
-    end
-end)
+--     for _, ent in ecs:iterate("gold") do
+--         g.trySpendGold(ent, 2)
+--     end
+-- end)
 
 function goldSystem:init()
 

@@ -1093,4 +1093,16 @@ function g.trySpendGold(ent, amount)
     return false
 end
 
+
+
+--------------------------------------------------------------------------------
+-- Combat
+--------------------------------------------------------------------------------
+
+function g.playSlashAnimation(x, y, dx, dy)
+    local slash = g.spawnEntity("slash", x, y)
+    slash.dx = dx
+    slash.dy = dy
+end
+
 return g
