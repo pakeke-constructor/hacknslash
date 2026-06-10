@@ -1,5 +1,5 @@
 
-local DEMON_SPEED = 80
+local DEMON_SPEED = 50
 
 local function closestPlayer(ent)
     local players = g.getECS():getPlayers()
@@ -24,6 +24,8 @@ g.defineEntity("basic_demon", {
     physics = { shape = "circle", radius = 6, mass = 1 },
 
     onUpdate = function (ent, dt)
+        -- TODO:
+        --  extract demon-AI into it's own system
         local target = closestPlayer(ent)
         if not target then
             ent.vx, ent.vy = 0, 0
@@ -35,6 +37,9 @@ g.defineEntity("basic_demon", {
             ent.vx = dx / len * ent.moveSpeed
             ent.vy = dy / len * ent.moveSpeed
         end
+
+        -- TODO: extract this faceDir stuff into it's own system
+        if dx ~= 0 then ent.faceDir = dx > 0 and 1 or -1 end
     end
 })
 
