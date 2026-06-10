@@ -28,7 +28,7 @@ consts.LOWER_FLOOR_DRAW_ORDER = -600
 consts.FLOOR_DRAW_ORDER = -500
 
 
-consts.MANA_REGEN_PER_SECOND = 5
+consts.MANA_REGEN_PER_SECOND = 1.5
 
 
 return consts

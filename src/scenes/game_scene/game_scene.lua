@@ -10,6 +10,11 @@ local CAMERA_SCALE = 2
 local GROUND_SPACING = 20
 local GROUND_GRID_RADIUS = 8 -- spawns (2r+1)^2 ground_tex entities
 
+
+local GROUND_COLOR = objects.Color("FF58443B")
+
+
+
 function game_scene:init()
 end
 
@@ -28,7 +33,7 @@ function game_scene:enter()
     g.spawnEntity("payFloor", 100, 0)
 
     -- The player starts at the center of the world.
-    self.player = g.spawnEntity("player", 0, 0)
+    self.player = g.spawnEntity("basic_champion", 0, 0)
 end
 
 function game_scene:leave()
@@ -80,7 +85,7 @@ function game_scene:getCameraTransform()
 end
 
 function game_scene:draw()
-    lg.clear(0.02, 0.03, 0.04, 1)
+    lg.clear(GROUND_COLOR)
 
     lg.push()
     lg.applyTransform(self:getCameraTransform())

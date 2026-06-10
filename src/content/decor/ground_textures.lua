@@ -4,7 +4,7 @@
 g.defineEntity("ground_tex", {
     drawOrder = -100,
 
-    color = g.snapToPalette(objects.Color.BROWN),
+    color = g.snapToPalette(objects.Color.DARK_GRAY),
 
     onDraw = function (ent, x, y)
         lg.setColor(ent.color)
