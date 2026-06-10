@@ -820,6 +820,29 @@ function g.drawCard(card, x,y, r)
 end
 
 
+--------------------------------------------------------------------------------
+-- Current run
+--------------------------------------------------------------------------------
+
+---@type g.Run?
+local currentRun = nil
+
+---@param run g.Run?
+function g.setRun(run)
+    currentRun = run
+end
+
+---@return g.Run?
+function g.getRun()
+    return currentRun
+end
+
+---@return boolean
+function g.hasRun()
+    return currentRun ~= nil
+end
+
+
 
 
 

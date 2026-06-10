@@ -1,5 +1,6 @@
 local sceneManager = require("src.scenes.sceneManager")
 local ECSWorld = require("src.ecs.ECSWorld")
+local hud = require("src.ui.hud")
 
 local game_scene = {}
 
@@ -29,6 +30,7 @@ function game_scene:enter()
 end
 
 function game_scene:leave()
+    g.setRun(nil)
     self.world = nil
     self.player = nil
 end
@@ -71,6 +73,9 @@ function game_scene:draw()
     lg.applyTransform(self:getCameraTransform())
     self.world:draw()
     lg.pop()
+
+    -- HUD draws in screen space, outside the camera transform.
+    hud.draw()
 end
 
 return game_scene

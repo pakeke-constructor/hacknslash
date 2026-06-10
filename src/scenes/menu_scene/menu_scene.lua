@@ -1,4 +1,5 @@
 local sceneManager = require("src.scenes.sceneManager")
+local Run = require("src.Run")
 
 local menu_scene = {}
 
@@ -11,13 +12,30 @@ end
 function menu_scene:update(dt)
 end
 
-function menu_scene:keypressed(key)
-    -- any key starts the run
+
+local function startRun()
+    -- TODO: load from saved data instead when continuing a run.
+    local run = Run()
+
+    -- TODO: temp test cards. Remove once decks are built from run state.
+    run.attackDeck.drawPile:add(g.newCardInstance("basic_slash"))
+    run.attackDeck.drawPile:add(g.newCardInstance("basic_shield"))
+    run.dashDeck.drawPile:add(g.newCardInstance("heroic_dash"))
+    run.dashDeck.drawPile:add(g.newCardInstance("wing_dash"))
+    run.specialDeck.drawPile:add(g.newCardInstance("radial_slash"))
+
+    g.setRun(run)
+
     sceneManager.gotoScene("game_scene")
 end
 
+function menu_scene:keypressed(key)
+    -- any key starts the run
+    startRun()
+end
+
 function menu_scene:mousepressed()
-    sceneManager.gotoScene("game_scene")
+    startRun()
 end
 
 function menu_scene:draw()
