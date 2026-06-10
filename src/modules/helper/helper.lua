@@ -859,7 +859,11 @@ end
 
 
 
-local function getOrbitPosOnRegionEdge(r, t)
+---Maps a normalized param `t` (0..1, wraps) to a point walking the region's perimeter.
+---@param r kirigami.Region
+---@param t number normalized position along the perimeter (0..1)
+---@return number x, number y
+function helper.pointOnRegionPerimeter(r, t)
     local x, y, w, h = r:get()
     local perimeter = 2 * (w + h)
     local d = (t % 1) * perimeter
@@ -887,7 +891,7 @@ function helper.drawEdgeTrailAnimation(r, color, offset, N)
     for i=N,1,-1 do
         col = col:darken(0.1)
         lg.setColor(col)
-        local x,y = getOrbitPosOnRegionEdge(r, offset + i/80 + love.timer.getTime()/5)
+        local x,y = helper.pointOnRegionPerimeter(r, offset + i/80 + love.timer.getTime()/5)
         lg.rectangle("fill", x-3,y-3, 6,6)
     end
 end

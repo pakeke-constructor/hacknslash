@@ -10,7 +10,9 @@ end
 
 function enemySpawning:perSecondUpdate(dt)
     local player
-    -- g.spawnEntity("basic_demon")
+    local r = g.getCameraRegion()
+    local x,y = helper.pointOnRegionPerimeter(r:padRatio(-0.2), love.math.random())
+    g.spawnEntity("basic_demon", x,y)
 end
 
 
