@@ -19,6 +19,8 @@ end
 g.defineEntity("basic_demon", {
     image = "demon",
 
+    partitions = {"enemy"},
+
     moveSpeed = DEMON_SPEED,
 
     onUpdate = function (ent, dt)

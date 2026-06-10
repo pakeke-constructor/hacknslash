@@ -23,7 +23,7 @@ function areaSystem:preUpdate(dt)
                 ct[targ] = ct[targ] - dt
                 if cooldown <= 0 then
                     if ent.area.playerUpdate(ent, targ, dt) then
-                        ct[targ] = ct[targ] + ent.area.playerCooldown
+                        ct[targ] = ct[targ] + (ent.area.playerCooldown or 0)
                     end
                 end
             end

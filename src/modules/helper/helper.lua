@@ -140,7 +140,20 @@ helper.EASINGS = {
     ---@param x number
     easeInCubic = function(x)
         return x ^ 3
-    end
+    end,
+    easeOutCubic = function (x)
+        return x ^ 0.7
+    end,
+    -- inout with overshoot at both ends
+    ---@param x number
+    backInOut = function(x)
+        local c = 1.70158 * 1.525
+        if x < 0.5 then
+            return ((2*x)^2 * ((c+1) * 2*x - c)) / 2
+        else
+            return ((2*x-2)^2 * ((c+1) * (2*x-2) + c) + 2) / 2
+        end
+    end,
 }
 
 

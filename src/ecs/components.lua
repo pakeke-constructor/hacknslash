@@ -47,6 +47,10 @@ local area = {
     playerUpdate = function (ent, player, dt) end,
     playerCooldown = 0.3, -- cooldown for playerUpdate for EACH player
     playerCooldownTable = {},
+    -- -- enemy stuff
+    -- enemyUpdate = function (ent, enemy, dt) end,
+    -- enemyCooldown = 0.3,
+    -- enemyCooldownTable = {}
 }
 
 ---@class ecs.Components

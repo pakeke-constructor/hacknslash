@@ -1129,10 +1129,12 @@ end
 -- Combat
 --------------------------------------------------------------------------------
 
-function g.playSlashAnimation(x, y, dx, dy)
+function g.playSlashAnimation(x, y, dx, dy, reverse)
     local slash = g.spawnEntity("slash", x, y)
     slash.dx = dx
     slash.dy = dy
+    slash.reverse = reverse
+    return slash
 end
 
 return g
