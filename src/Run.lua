@@ -11,16 +11,42 @@ local Run = objects.Class("g:Run")
 
 
 ---@class g.Deck: objects.Class
+---@field deckType string
+---@field drawPile objects.Array<g.Card>
+---@field discardPile objects.Array<g.Card>
 local Deck = objects.Class("g:Deck")
 
 ---@param typ string
 function Deck:init(typ)
     --todo; store cards here
-    self.deckType = type
+    self.deckType = typ
+    self.drawPile = objects.Array()
+    self.discardPile = objects.Array()
+end
+
+function Deck:reshuffle()
+    local buf = objects.Array()
+    for _, c in ipairs(self.drawPile) do
+        buf:add(c)
+    end
+    for _, c in ipairs(self.discardPile) do
+        buf:add(c)
+    end
+    helper.shuffle(buf)
+    self.drawPile = buf
+end
+
+---@param self g.Deck
+local function forcePlayCard(self)
+    local card = self.drawPile:pop()
+    self.discardPile:add(card)
+    print("card played: ", card)
+end
+
+function Deck:update(dt)
 end
 
 function Deck:tryPlayCard()
-    -- cycle across ringbuffe.
     -- play card animation n stuff.
     -- activate ability
     return true
