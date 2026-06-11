@@ -23,6 +23,10 @@ function game_scene:enter()
     self.world = ECSWorld()
     g.setCurrentECS(self.world)
 
+    -- Register system handlers now so entitySpawned fires for entities we spawn
+    -- here in enter() (otherwise stats/health never get set until next frame).
+    g.pollHandlers()
+
     self.camera = Camera(CAMERA_SCALE)
 
     -- Lay down a bunch of ground textures across the play field.

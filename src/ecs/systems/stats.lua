@@ -41,10 +41,23 @@ function stats:entitySpawned(ent)
     end
 end
 
-function stats:preUpdate()
+
+function stats:preUpdate(dt)
     for _, ent in self.ecs:iterate("player") do
         recomputeAll(ent)
     end
 end
+
+
+function stats:perSecondUpdate()
+    for _, ent in self.ecs:iterate("player") do
+        if ent.healthRegen and ent.health and ent.health < ent.maxHealth then
+            -- dont call `g.healEntity` here coz we dont wanna trigger event every time.
+            ent.health = math.min(ent.health + ent.healthRegen, ent.maxHealth)
+        end
+    end
+end
+
+
 
 return stats

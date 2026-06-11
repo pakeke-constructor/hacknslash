@@ -69,6 +69,7 @@ g.defineEntity("basic_champion", {
     baseAttackDamage = 10,
     baseAttackSpeed = 1, -- attacks per second
     baseAttackRange = 100,
+    baseHealthRegen = 1, -- health per second
 
     moveSpeed = DEFAULT_SPEED,
     accelTime = DEFAULT_ACCEL_TIME,

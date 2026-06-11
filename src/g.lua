@@ -456,8 +456,13 @@ local function drawIceCube(ent, x, y, sx,sy)
 end
 
 
+g.COLORS = g.COLORS or {
+    DAMAGE = objects.Color("ffd53341"),
+    HEAL = objects.Color("ffc852a4"),
+}
+
 local HEALTHBAR_ON_TOP = true
--- true if healthbar on top, 
+-- true if healthbar on top,
 -- false implies healthbar on bottom
 
 local ENEMY_HEALTHBAR_COLOR = g.snapToPalette(1, 0.1, 0.1)
@@ -498,44 +503,6 @@ local function drawHealthBar(ent, x,y)
         lg.setColor(NEUTRAL_HEALTHBAR_COLOR)
     end
     lg.rectangle("fill", x - w/2, y + oy, w * frac, h)
-
-    -- status effect tip segments (drawn right-to-left from tip)
-    local pxPerHp = w / ent.maxHealth
-    local right = x - w/2 + w * frac
-    local remaining = ent.health
-    local function drawTip(hp, color)
-        hp = math.min(hp, remaining)
-        if hp <= 0 then return end
-        lg.setColor(color)
-        lg.rectangle("fill", right - hp * pxPerHp, y + oy, hp * pxPerHp, h)
-        right = right - hp * pxPerHp
-        remaining = remaining - hp
-    end
-    drawTip(5 * (ent.poisonAmount or 0), g.COLORS.POISON)
-    drawTip((ent.burnTime or 0) * consts.BURN_DPS, g.COLORS.BURN)
-
-    if ent.armor then
-        local FLASH_DUR = 0.15
-        local armorFlash = math.max(0, FLASH_DUR - (ent._timeSinceLostArmor or 0xfff))/FLASH_DUR
-        local armorH = 6
-        local armorY = y + h + oy
-        local ratio = math.min(1,(ent.armor)/6)
-        lg.setColor(0,0,0)
-        lg.rectangle("fill", x-w/2, armorY, w*ratio, armorH)
-        local pad=2
-        lg.setColor(0.5,0.5,0.5)
-        lg.rectangle("fill", x-w/2 + pad, armorY + pad, ratio*(w-pad*2), armorH-pad*2)
-        if armorFlash then
-            lg.setColor(1,1,1, armorFlash)
-            lg.rectangle("fill", x-w/2, armorY, w*ratio, armorH)
-        end
-        lg.setColor(1,1,1)
-        g.drawImage("armor_healthbar_icon", x-w/2 - 2, armorY + 2)
-        if armorFlash > 0 then
-            lg.setColor(1,1,1, armorFlash)
-            g.drawImage("armor_healthbar_icon_white", x-w/2 - 2, armorY + 2)
-        end
-    end
 end
 
 

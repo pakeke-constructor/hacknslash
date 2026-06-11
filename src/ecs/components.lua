@@ -84,6 +84,8 @@ local area = {
 ---@field public baseAttackSpeed number?
 ---@field public attackRange number?
 ---@field public baseAttackRange number?
+---@field public healthRegen number?
+---@field public baseHealthRegen number?
 ---@field public lifesteal number?
 ---@field public lifetime number?
 ---@field public shadow ecs.components.Shadow?
