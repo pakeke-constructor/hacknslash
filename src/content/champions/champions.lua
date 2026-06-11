@@ -75,6 +75,8 @@ g.defineEntity("basic_champion", {
     accelTime = DEFAULT_ACCEL_TIME,
     brakeTime = DEFAULT_BRAKE_TIME,
 
+    invincibilityTime = 0.5, -- min seconds between enemy hits
+
     gold = 0,
     partitions = {"player"},
 

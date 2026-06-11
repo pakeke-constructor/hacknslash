@@ -53,6 +53,7 @@ local area = {
 ---@field public color objects.Color?
 ---@field public alpha number? transparency
 ---@field public player boolean?
+---@field public enemy boolean?
 ---@field public x number?
 ---@field public y number?
 ---@field public z number?
@@ -80,6 +81,9 @@ local area = {
 ---@field public baseMaxHealth number?
 ---@field public attackDamage number?
 ---@field public baseAttackDamage number?
+---@field public damagePlayer boolean? deals attackDamage to players on physics-collision
+---@field public invincibilityTime number? min seconds between taking enemy hits
+---@field public _invincibleTimer number? remaining invincibility (counts down)
 ---@field public attackSpeed number?
 ---@field public baseAttackSpeed number?
 ---@field public autoAttack boolean?

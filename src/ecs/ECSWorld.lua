@@ -20,6 +20,7 @@ function ECSWorld:init()
     self.data = {} -- system-storage
 
     self.players = {} -- list of player entities, rebuilt each update
+    self.enemies = {} -- list of enemy entities, rebuilt each update
 
     self.backCanvas = PixelCanvas.new(love.graphics.getDimensions())
     self.frontCanvas = PixelCanvas.new(love.graphics.getDimensions())
@@ -169,6 +170,13 @@ function ECSWorld:getPlayers()
 end
 
 
+---@return ecs.Entity[]
+function ECSWorld:getEnemies()
+    return self.enemies
+end
+
+
+
 ---@param name string filename of the system (without .lua)
 ---@return ecs.System?
 function ECSWorld:getSystem(name)
@@ -186,6 +194,8 @@ function ECSWorld:update(dt)
         local e = self.entities[i]
         if e.player then
             self.players[#self.players + 1] = e
+        elseif e.enemy then
+            self.enemies[#self.enemies + 1] = e
         end
         if not e.physics then
             local vx, vy = g.getVel(e)

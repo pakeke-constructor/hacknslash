@@ -495,9 +495,9 @@ local function drawHealthBar(ent, x,y)
     lg.rectangle("fill", x - w/2, y + oy, w * lagFrac, h)
 
     -- green healthbar for allies, red for enemies
-    if ent.team == "enemy" then
+    if ent.enemy then
         lg.setColor(ENEMY_HEALTHBAR_COLOR)
-    elseif ent.team == "ally" then
+    elseif ent.player then
         lg.setColor(ALLY_HEALTHBAR_COLOR)
     else -- neutral unit
         lg.setColor(NEUTRAL_HEALTHBAR_COLOR)

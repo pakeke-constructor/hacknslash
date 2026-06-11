@@ -28,6 +28,15 @@ function physicsSys:init()
     self.physicsWorld = love.physics.newWorld(0, 0, true)
     self.bodies = weakTable()
     self.fixtures = weakTable()
+
+    -- emit onCollide for systems (eg enemy damage). Fired mid-step, so don't
+    -- create/destroy bodies in handlers (entity removal is buffered = safe).
+    self.physicsWorld:setCallbacks(function(fixA, fixB)
+        local a, b = fixA:getBody():getUserData(), fixB:getBody():getUserData()
+        if a and b then
+            g.call("onCollide", a, b)
+        end
+    end,function()end,nil,nil)
 end
 
 ---@param self ecs.PhysicsSystem

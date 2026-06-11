@@ -15,6 +15,9 @@ g.defineEvent("postDraw")
 -- Entity lifecycle
 g.defineEvent("entitySpawned")     -- (ent)
 
+-- Physics
+g.defineEvent("onCollide")  -- (entA, entB) both orders NOT emitted; check both
+
 g.defineEvent("drawEntity")  -- (ent, x, y)
 
 
