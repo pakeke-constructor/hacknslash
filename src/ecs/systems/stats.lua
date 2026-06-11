@@ -34,8 +34,9 @@ local stats = {}
 
 ---@param ent ecs.Entity
 function stats:entitySpawned(ent)
-    if not ent.player then return end
-    recomputeAll(ent)
+    if ent.player then
+        recomputeAll(ent)
+    end
     if ent.maxHealth then
         ent.health = ent.maxHealth
     end

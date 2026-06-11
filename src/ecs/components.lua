@@ -82,6 +82,8 @@ local area = {
 ---@field public baseAttackDamage number?
 ---@field public attackSpeed number?
 ---@field public baseAttackSpeed number?
+---@field public autoAttack boolean?
+---@field public _autoAttackCooldown number?
 ---@field public attackRange number?
 ---@field public baseAttackRange number?
 ---@field public healthRegen number?

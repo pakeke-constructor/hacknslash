@@ -19,7 +19,10 @@ end
 g.defineEntity("basic_demon", {
     image = "demon",
 
+    partitions = {"enemy"},
+
     moveSpeed = DEMON_SPEED,
+    maxHealth = 40,
 
     physics = { shape = "circle", radius = 6, mass = 1 },
 

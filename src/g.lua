@@ -773,6 +773,18 @@ function g.setCurrentECS(ecs)
     currentECS = ecs
 end
 
+---@param partitionId string
+---@param x number
+---@param y number
+---@param fn fun(ent: ecs.Entity)
+---@param range number
+function g.iteratePartition(partitionId, x, y, fn, range)
+    local ecs = g.tryGetECS()
+    if ecs then
+        ecs:iteratePartition(partitionId, x, y, fn, range)
+    end
+end
+
 
 
 
@@ -961,6 +973,9 @@ function g.spawnEntityWithInit(id, x, y, initFunc, ...)
         initFunc(ent)
     end
     ecs:addEntity(ent)
+    if ent.maxHealth then
+        
+    end
     g.call("entitySpawned", ent)
     return ent
 end
@@ -1125,6 +1140,18 @@ function g.screenToWorld(x, y)
     end
     return x, y
 end
+
+---@return number x
+---@return number y
+function g.getMouseInWorldSpace()
+    local x,y = love.mouse.getPosition()
+    local scene = sceneManager.getCurrentScene()
+    if scene and scene.camera then
+        return scene.camera:toWorld(x, y)
+    end
+    return x, y
+end
+
 
 --- Convert world coordinates to screen coordinates using the current scene's
 --- camera. Returns the input unchanged if the scene has no camera.
