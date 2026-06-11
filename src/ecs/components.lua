@@ -75,7 +75,15 @@ local area = {
 ---@field public team string?
 ---@field public image string?
 ---@field public health number?
+---@field public buffs table<string, number>? flat stat buffs, keyed by stat name
 ---@field public maxHealth number?
+---@field public baseMaxHealth number?
+---@field public attackDamage number?
+---@field public baseAttackDamage number?
+---@field public attackSpeed number?
+---@field public baseAttackSpeed number?
+---@field public attackRange number?
+---@field public baseAttackRange number?
 ---@field public lifesteal number?
 ---@field public lifetime number?
 ---@field public shadow ecs.components.Shadow?

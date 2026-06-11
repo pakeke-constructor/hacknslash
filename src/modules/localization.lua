@@ -66,6 +66,8 @@ local interpolators = {}
 ---@type table<string, string>
 local languageList = {}
 
+local currentLocale = "en"
+
 
 ---@type table<string, string>
 local translatedKeys = {}
@@ -100,12 +102,11 @@ function Interpolator:init(text, metadata)
         if translatedKeys[key] then
             self.text = translatedKeys[key]
         else
-            local lang = settings.getLanguage()
-            if not missingKeys[key] and lang ~= "en" then
+            if not missingKeys[key] and currentLocale ~= "en" then
                 if #context > 0 then
-                    log.warn(string.format("Missing %s translation key of %q (%q)", lang, text, context))
+                    log.warn(string.format("Missing %s translation key of %q (%q)", currentLocale, text, context))
                 else
-                    log.warn(string.format("Missing %s translation key of %q", lang, text))
+                    log.warn(string.format("Missing %s translation key of %q", currentLocale, text))
                 end
                 missingKeys[key] = true
             end
@@ -167,13 +168,25 @@ end
 
 ---Load localization data (callable only during initialization).
 ---@param strings table<string, string>
-function localization.load(strings)
+---@param locale string
+function localization.load(strings, locale)
     assert(isLoadTime(), "this can only be called at load-time")
 
+    currentLocale = locale or currentLocale
     for k, v in pairs(strings) do
         translatedKeys[k] = v
     end
 end
+
+
+---set locale
+---@param locale string
+function localization.setLocale(locale)
+    assert(isLoadTime(), "this can only be called at load-time")
+    currentLocale = locale or currentLocale
+end
+
+
 
 
 -- Dump list of strings to be translated.

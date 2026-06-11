@@ -66,6 +66,7 @@ loc MUST be called at load-time, before the draw/update loop begins.
 - You are working with an experienced engineer. Be terse; don't over-explain.
 - Simple code > "correct" code. No unnecessary error handling, no overengineering for the sake of "best practices".
 - No complex one-liners, no deep nesting, no clever abstractions.
+- Don't use luajit/lua to check for syntax-errors after you are done, because neither are installed.
 - If a feature needs >300 new lines, stop and ask how to simplify.
 </IMPORTANT-INSTRUCTIONS>
 

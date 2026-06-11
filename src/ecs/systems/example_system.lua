@@ -1,6 +1,6 @@
 
 
-
+---@class g.exampleSystem: ecs.System
 local exampleSystem = {}
 
 

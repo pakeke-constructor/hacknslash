@@ -30,3 +30,10 @@ g.defineEvent("onKill")       -- killer first arg: (killer, victim)
 -- Questions
 g.defineQuestion("getEntityScale", MUL, 1)
 g.defineQuestion("getDamageTakenMultiplier", MUL, 1)
+
+
+-- Stats (only players have these). Each generates getXxxModifier/getXxxMultiplier questions.
+g.defineStat("maxHealth", "baseMaxHealth", { displayName = "Health" })
+g.defineStat("attackDamage", "baseAttackDamage", { displayName = "Attack Damage" })
+g.defineStat("attackSpeed", "baseAttackSpeed", { displayName = "Attack Speed" })
+g.defineStat("attackRange", "baseAttackRange", { displayName = "Attack Range" })

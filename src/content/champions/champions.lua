@@ -57,8 +57,18 @@ end
 
 g.defineEntity("basic_champion", {
     player = true,
+    autoAttack={
+        drawCursor = nil, -- or function(ent) ... end
+        range = 100,
+    },
 
     image = "basic_champion",
+
+    -- base stats (computed -> maxHealth/attackDamage/attackSpeed/attackRange by stats system)
+    baseMaxHealth = 100,
+    baseAttackDamage = 10,
+    baseAttackSpeed = 1, -- attacks per second
+    baseAttackRange = 100,
 
     moveSpeed = DEFAULT_SPEED,
     accelTime = DEFAULT_ACCEL_TIME,
@@ -73,3 +83,4 @@ g.defineEntity("basic_champion", {
         doPlayerMovement(ent, dt)
     end
 })
+

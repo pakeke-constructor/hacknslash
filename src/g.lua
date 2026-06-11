@@ -716,6 +716,75 @@ end
 
 
 --------------------------------------------------------------------------------
+-- Stats
+--------------------------------------------------------------------------------
+-- Stats are recomputed every frame by the stats system (see systems/stats.lua).
+-- Each stat has a base field and a computed field, e.g. baseAttackDamage -> attackDamage.
+-- Formula: stat = (base + modifier + buff) * multiplier
+-- defineStat auto-generates two questions:
+--   getXxxModifier   (ADD, default 0)      -- flat bonuses
+--   getXxxMultiplier (MULTIPLY, default 1) -- scaling
+-- To buff: g.buffEntity(ent, stat, amount), or answer the questions via handlers.
+
+local reducers = require("src.modules.reducers")
+
+---@class g.Stat
+---@field id string
+---@field name string
+---@field displayName string
+---@field baseName string
+---@field modQ string
+---@field mulQ string
+
+---@type g.Stat[]
+local STAT_LIST = {}
+---@type table<string, g.Stat>
+local STAT_DEFS = {}
+
+---@param id string
+---@param baseName string
+---@param info {displayName:string}
+function g.defineStat(id, baseName, info)
+    local Name = id:sub(1,1):upper() .. id:sub(2)
+    local modQ = "get" .. Name .. "Modifier"
+    local mulQ = "get" .. Name .. "Multiplier"
+    g.defineQuestion(modQ, reducers.ADD, 0)
+    g.defineQuestion(mulQ, reducers.MULTIPLY, 1)
+    local stat = {
+        id = id,
+        name = id,
+        displayName = loc(info.displayName, {}, {
+            context = "The display name of a player stat (e.g. Health, Attack Damage)"
+        }),
+        baseName = baseName,
+        modQ = modQ,
+        mulQ = mulQ,
+    }
+    STAT_LIST[#STAT_LIST + 1] = stat
+    STAT_DEFS[id] = stat
+end
+
+function g.getStatList()
+    return STAT_LIST
+end
+
+---@param id string
+---@return g.Stat
+function g.getStatInfo(id)
+    return STAT_DEFS[id]
+end
+
+---@param ent ecs.Entity
+---@param stat string
+---@param increase number
+function g.buffEntity(ent, stat, increase)
+    assert(STAT_DEFS[stat], "unknown stat: " .. tostring(stat))
+    ent.buffs = ent.buffs or {}
+    ent.buffs[stat] = (ent.buffs[stat] or 0) + increase
+end
+
+
+--------------------------------------------------------------------------------
 -- ECS accessors
 --------------------------------------------------------------------------------
 
