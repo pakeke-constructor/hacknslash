@@ -1238,14 +1238,27 @@ end
 
 --- Try to spend gold from an entity
 --- @param ent ecs.Entity
---- @param amount number
-function g.trySpendGold(ent, amount)
+--- @param targetEnt ecs.Entity
+function g.trySpendGold(ent, targetEnt)
     if not ent.stackedGold then return end
-    if ent.stackedGold >= amount then
-        ent.stackedGold = ent.stackedGold - amount
-        return true
-    end
-    return false
+    if ent.stackedGold < 0 then return end
+    if (not targetEnt.goldCost) or (targetEnt.goldCost <= 0) then return end
+    if not targetEnt.goldSpendComplete then return end
+
+    ent.stackedGold = ent.stackedGold - 1
+
+    local coinEnt = g.spawnEntity("goldcoin_spend", ent.x, ent.y)
+    coinEnt.homeTowardsEntity = {
+        target = targetEnt,
+        onArrive = function(self, targEnt)
+            targEnt.goldCost = targEnt.goldCost - 1
+            if targEnt.goldCost <= 0 then
+                targEnt:goldSpendComplete()
+            end
+            g.killEntity(self)
+        end
+    }
 end
 
 return g
+

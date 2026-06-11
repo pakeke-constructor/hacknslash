@@ -39,7 +39,7 @@ function game_scene:enter()
         end
     end
 
-    g.spawnEntity("payFloor", 100, 0)
+    g.spawnEntity("payZone", 100, 0)
 
     -- The player starts at the center of the world.
     self.player = g.spawnEntity("basic_champion", 0, 0)

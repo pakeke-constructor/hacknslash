@@ -26,7 +26,8 @@ function areaSystem:preUpdate(dt)
             ct[targ] = ct[targ] or 0
             local cooldown = ct[targ]
             
-            if helper.AABB_isPointInEnt(targ.x, targ.y, ent) then
+            local x,y,w,h = ent.x-area.width/2, ent.y-area.height/2, area.width, area.height
+            if helper.AABB_isPointInRectangle(targ.x, targ.y, x,y,w,h) then
                 ct[targ] = ct[targ] - dt
                 if cooldown <= 0 then
                     if area.playerUpdate(ent, targ, dt) then

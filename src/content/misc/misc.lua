@@ -28,12 +28,10 @@ When enough money is sent, this entity has like a `onPurchase` callback or whate
 ]]
 
 
-
-g.defineEntity("payFloor", {
+g.defineEntity("payZone", {
     init = function(ent, x,y, ...)
         -- todo, pass stuff here?
     end,
-    goldCost = 10,
     -- unlock = fn
 
     playerDetectArea = {
@@ -45,14 +43,16 @@ g.defineEntity("payFloor", {
             if ent.goldCost <= 0 then
                 return
             end
-            if g.trySpendGold(player, 1) then
-                ent.goldCost = ent.goldCost - 1
-                return true
-            end
+            g.trySpendGold(player, ent)
 
             return false
         end,
     },
+
+    goldCost = 10,
+    goldSpendComplete = function(ent)
+        print("SPENT: ", ent)
+    end,
 
     onDraw = function (ent, x, y)
         lg.setColor(0.95, 0.95, 0.4, 0.3)
@@ -61,6 +61,6 @@ g.defineEntity("payFloor", {
         lg.rectangle("fill", x-w/2, y-h/2, w, h)
 
         lg.setColor(1, 1, 0.7)
-        richtext.printRichContainedNoWrap("$" .. ent.goldCost .. "/" .. "10", g.getSmallFont(16), x-10, y-25, 20, 20)
+        richtext.printRichContainedNoWrap("$" .. ent.goldCost, g.getSmallFont(16), x-10, y-25, 20, 20)
     end,
 })
