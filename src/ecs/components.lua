@@ -104,6 +104,8 @@ local area = {
 ---@field public physics ecs.components.Physics?
 ---@field public partitions string[]?
 ---@field public stackedGold number?
+---@field public goldAmount number?
+---@field public moveSpeed number?
 ---@field public area ecs.components.Area?
 ---@field public ___removed boolean?
 ---@field public ___dead boolean?

@@ -1233,7 +1233,6 @@ end
 --- @param ent ecs.Entity
 --- @param amount number
 function g.addGold(ent, amount)
-    if not ent.stackedGold then return end
     ent.stackedGold = (ent.stackedGold or 0) + amount
 end
 

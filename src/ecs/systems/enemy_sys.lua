@@ -35,6 +35,14 @@ local function tryDamage(attacker, target)
 end
 
 
+-- drop gold when an enemy dies
+function enemies:entityDeath(ent)
+    if ent.enemy then
+        g.spawnGold(ent.x, ent.y, 3)
+    end
+end
+
+
 -- tick player invincibility + deal touch damage from overlapping enemies.
 -- Polled (not event-driven) so a player hugging an enemy keeps taking hits.
 function enemies:postUpdate(dt)
