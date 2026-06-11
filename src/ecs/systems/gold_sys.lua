@@ -66,7 +66,7 @@ function goldSystem:postUpdate()
 
         if closest and closestDist <= PICKUP_RANGE * PICKUP_RANGE then
             coinEnt.moveSpeed = COIN_SPEED
-            coinEnt.homeTowardsEntity = { target = closest, onArrive = collect }
+            coinEnt.homeTowardsEntity = { target = closest, onArrive = collect, oy=-20 }
         end
 
         ::continue::
@@ -80,9 +80,10 @@ end
 ---@param x number
 ---@param y number
 function goldSystem:drawEntity(ent, x, y)
+    lg.setColor(1,1,1)
     if ent.stackedGold then
         for i=1, ent.stackedGold do
-            g.drawImage("gold_coin", x, y - 20 - i*5, 0, 0.5, 0.5)
+            g.drawImage("gold_coin", x, y - 20 - i*5, 0, 1, 1)
         end
     end
 end

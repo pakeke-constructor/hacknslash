@@ -1224,7 +1224,7 @@ function g.spawnGold(x,y, amount, spreadDistance)
     for i=1, amount do
         local dx = love.math.random(-10,10)
         local dy = love.math.random(-10,10)
-        g.spawnEntity("gold_coin",x+dx,y+dy)
+        g.spawnEntity("goldcoin_earn",x+dx,y+dy)
     end
 end
 

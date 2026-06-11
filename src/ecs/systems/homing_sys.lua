@@ -21,7 +21,8 @@ function homing:preUpdate(dt)
             goto continue
         end
 
-        local dx, dy = target.x - ent.x, target.y - ent.y
+        local ty = target.y + (h.oy or 0)
+        local dx, dy = target.x - ent.x, ty - ent.y
         local dist = math.sqrt(dx * dx + dy * dy)
 
         -- arrived?

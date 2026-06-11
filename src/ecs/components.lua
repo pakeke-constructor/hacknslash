@@ -29,7 +29,7 @@ local shadow = {
     opacity = 0.6,
 }
 
----@class ecs.components.Area
+---@class ecs.components.PlayerDetectArea
 ---@field public type "rectangle"|"circle?
 ---@field public radius number?
 ---@field public width number?
@@ -94,10 +94,11 @@ local area = {
 ---@field public baseHealthRegen number?
 ---@field public lifesteal number?
 ---@field public lifetime number?
----@field public homeTowardsEntity {target:ecs.Entity, onArrive:fun(self:ecs.Entity, targetEnt:ecs.Entity)}?
+---@field public homeTowardsEntity {target:ecs.Entity, oy:number?, onArrive:fun(self:ecs.Entity, targetEnt:ecs.Entity)}?
 ---@field public shadow ecs.components.Shadow?
 ---@field public _timeSinceDamaged number?
 ---@field public _timeSinceHealed number?
+---@field public _timeSinceSpentGold number? time since gold has "left" the player's stack
 ---@field public _damageLagAmount number?
 ---@field public onUpdate fun(ent:ecs.Entity, dt:number)?
 ---@field public onDraw fun(ent:ecs.Entity, x:number, y:number)?
@@ -106,7 +107,7 @@ local area = {
 ---@field public stackedGold number?
 ---@field public goldAmount number?
 ---@field public moveSpeed number?
----@field public area ecs.components.Area?
+---@field public playerDetectArea ecs.components.PlayerDetectArea?
 ---@field public ___removed boolean?
 ---@field public ___dead boolean?
 local ecs_Entity = {}
