@@ -104,8 +104,10 @@ local area = {
 ---@field public onDraw fun(ent:ecs.Entity, x:number, y:number)?
 ---@field public physics ecs.components.Physics?
 ---@field public partitions string[]?
----@field public stackedGold number?
----@field public goldAmount number?
+---@field public stackedGold number? gold an entity is carrying (e.g. a player)
+---@field public goldAmount number? gold a single coin is worth
+---@field public goldCost number? remaining gold a spendable needs (e.g. payZone)
+---@field public goldSpendComplete fun(ent:ecs.Entity)? fired when goldCost hits 0
 ---@field public moveSpeed number?
 ---@field public playerDetectArea ecs.components.PlayerDetectArea?
 ---@field public ___removed boolean?

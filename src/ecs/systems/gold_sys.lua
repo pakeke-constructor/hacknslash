@@ -4,31 +4,61 @@
 local goldSystem = {}
 
 
---[[
-With spend/collect sequence, changes we need to make:
+--------------------------------------------------------------------------------
+-- Gold API (this system is the single owner of all gold logic)
+--------------------------------------------------------------------------------
 
-remove g.* gold funcs, move to area-system thing
-add g.spawnGold(x,y, amount) that spawns a bunch of gold-coins to collect
-make goldcoins move towards player(s) automatically, and be collected automatically
-]]
+local DEFAULT_SPREAD_DISTANCE = 10
 
-
-
-
-function goldSystem:init()
-
+--- Spawns `amount` loose coins that home to nearby players (see postUpdate).
+---@param x number
+---@param y number
+---@param amount number
+---@param spreadDistance number?
+function g.spawnGold(x, y, amount, spreadDistance)
+    spreadDistance = spreadDistance or DEFAULT_SPREAD_DISTANCE
+    for i = 1, amount do
+        local dx = love.math.random(-spreadDistance, spreadDistance)
+        local dy = love.math.random(-spreadDistance, spreadDistance)
+        g.spawnEntity("goldcoin", x + dx, y + dy)
+    end
 end
 
--- function goldSystem:preUpdate()
---     local ecs = g.tryGetECS()
---     if not ecs then return end
-    
---     for _, ent in ecs:iterate("gold") do
-        
---     end
--- end
+--- Adds gold to an entity's stack.
+---@param ent ecs.Entity
+---@param amount number
+function g.addGold(ent, amount)
+    ent.stackedGold = (ent.stackedGold or 0) + amount
+end
+
+--- Drips 1 gold from `ent` toward `targetEnt` (a spendable, e.g. payZone).
+--- Gold leaves the stack now; targetEnt.goldCost ticks down as each coin lands.
+---@param ent ecs.Entity
+---@param targetEnt ecs.Entity
+function g.trySpendGold(ent, targetEnt)
+    if (ent.stackedGold or 0) <= 0 then return end
+    if (targetEnt.goldCost or 0) <= 0 then return end
+    if not targetEnt.goldSpendComplete then return end
+
+    ent.stackedGold = ent.stackedGold - 1
+
+    local coin = g.spawnEntity("goldcoin", ent.x, ent.y)
+    coin.homeTowardsEntity = {
+        target = targetEnt,
+        onArrive = function(self, targEnt)
+            targEnt.goldCost = targEnt.goldCost - 1
+            if targEnt.goldCost <= 0 then
+                targEnt:goldSpendComplete()
+            end
+            g.killEntity(self)
+        end,
+    }
+end
 
 
+--------------------------------------------------------------------------------
+-- System: loose coins home to the nearest player and get collected
+--------------------------------------------------------------------------------
 
 local MAX_ITERS_PER_FRAME = 20
 local PICKUP_RANGE = 80
@@ -66,7 +96,7 @@ function goldSystem:postUpdate()
 
         if closest and closestDist <= PICKUP_RANGE * PICKUP_RANGE then
             coinEnt.moveSpeed = COIN_SPEED
-            coinEnt.homeTowardsEntity = { target = closest, onArrive = collect, oy=-20 }
+            coinEnt.homeTowardsEntity = { target = closest, onArrive = collect, oy = -20 }
         end
 
         ::continue::
@@ -74,18 +104,17 @@ function goldSystem:postUpdate()
 end
 
 
-
-
 ---@param ent ecs.Entity
 ---@param x number
 ---@param y number
 function goldSystem:drawEntity(ent, x, y)
-    lg.setColor(1,1,1)
+    lg.setColor(1, 1, 1)
     if ent.stackedGold then
-        for i=1, ent.stackedGold do
-            g.drawImage("gold_coin", x, y - 20 - i*5, 0, 1, 1)
+        for i = 1, ent.stackedGold do
+            g.drawImage("gold_coin", x, y - 20 - i * 5, 0, 1, 1)
         end
     end
 end
+
 
 return goldSystem

@@ -1209,56 +1209,8 @@ function g.addUITextPopup(x, y, richtxt, args)
 end
 
 
---------------------------------------------------------------------------------
--- Gold Infra
---------------------------------------------------------------------------------
-
-local DEFAULT_SPREAD_DISTANCE = 10
-
----@param x number
----@param y number
----@param amount number
----@param spreadDistance number?
-function g.spawnGold(x,y, amount, spreadDistance)
-    spreadDistance = spreadDistance or DEFAULT_SPREAD_DISTANCE
-    for i=1, amount do
-        local dx = love.math.random(-10,10)
-        local dy = love.math.random(-10,10)
-        g.spawnEntity("goldcoin_earn",x+dx,y+dy)
-    end
-end
-
-
---- Adds gold to an entity
---- @param ent ecs.Entity
---- @param amount number
-function g.addGold(ent, amount)
-    ent.stackedGold = (ent.stackedGold or 0) + amount
-end
-
---- Try to spend gold from an entity
---- @param ent ecs.Entity
---- @param targetEnt ecs.Entity
-function g.trySpendGold(ent, targetEnt)
-    if not ent.stackedGold then return end
-    if ent.stackedGold < 0 then return end
-    if (not targetEnt.goldCost) or (targetEnt.goldCost <= 0) then return end
-    if not targetEnt.goldSpendComplete then return end
-
-    ent.stackedGold = ent.stackedGold - 1
-
-    local coinEnt = g.spawnEntity("goldcoin_spend", ent.x, ent.y)
-    coinEnt.homeTowardsEntity = {
-        target = targetEnt,
-        onArrive = function(self, targEnt)
-            targEnt.goldCost = targEnt.goldCost - 1
-            if targEnt.goldCost <= 0 then
-                targEnt:goldSpendComplete()
-            end
-            g.killEntity(self)
-        end
-    }
-end
+-- Gold infra now lives in src/ecs/systems/gold_sys.lua (g.spawnGold / g.addGold
+-- / g.trySpendGold are defined there).
 
 return g
 

@@ -2,14 +2,9 @@
 
 
 
--- spawned when player EARNS money
-g.defineEntity("goldcoin_earn", {
-    image = "gold_coin",
-    goldAmount = 1,
-})
-
--- spawned when player SPENDS money
-g.defineEntity("goldcoin_spend", {
+-- Spawned loose when the player EARNS money, or homed to a spendable when the
+-- player SPENDS money. See gold_sys for both flows.
+g.defineEntity("goldcoin", {
     image = "gold_coin",
     goldAmount = 1,
 })
