@@ -14,6 +14,8 @@ local GROUND_GRID_RADIUS = 8 -- spawns (2r+1)^2 ground_tex entities
 
 local GROUND_COLOR = objects.Color("FF58443B")
 
+local GAME_OVER_TEXT = "{o}{blink}"..loc("GAME OVER!")
+
 
 
 function game_scene:init()
@@ -93,6 +95,14 @@ function game_scene:draw()
     ui.startUI()
     -- HUD draws in screen space, outside the camera transform.
     hud.draw()
+
+    if #self.world:getPlayers() == 0 then
+        lg.setColor(0, 0, 0, 0.7)
+        lg.rectangle("fill", ui.getFullScreenRegion():get())
+        lg.setColor(1, 1, 1, 1)
+        richtext.printRichContained(GAME_OVER_TEXT, g.getBigFont(48),
+            ui.getScreenRegion():padRatio(0.5):get())
+    end
     ui.endUI()
 end
 

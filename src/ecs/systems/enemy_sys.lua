@@ -41,7 +41,6 @@ end
 
 -- damagePlayer enemies hurt players on touch (uses "player" partition tag)
 function enemies:onCollide(a, b)
-    print(a,b)
     tryDamage(a, b)
     tryDamage(b, a)
 end
