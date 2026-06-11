@@ -1213,21 +1213,37 @@ end
 -- Gold Infra
 --------------------------------------------------------------------------------
 
+local DEFAULT_SPREAD_DISTANCE = 10
+
+---@param x number
+---@param y number
+---@param amount number
+---@param spreadDistance number?
+function g.spawnGold(x,y, amount, spreadDistance)
+    spreadDistance = spreadDistance or DEFAULT_SPREAD_DISTANCE
+    for i=1, amount do
+        local dx = love.math.random(-10,10)
+        local dy = love.math.random(-10,10)
+        g.spawnEntity("gold_coin",x+dx,y+dy)
+    end
+end
+
+
 --- Adds gold to an entity
 --- @param ent ecs.Entity
 --- @param amount number
 function g.addGold(ent, amount)
-    if not ent.gold then return end
-    ent.gold = (ent.gold or 0) + amount
+    if not ent.stackedGold then return end
+    ent.stackedGold = (ent.stackedGold or 0) + amount
 end
 
 --- Try to spend gold from an entity
 --- @param ent ecs.Entity
 --- @param amount number
 function g.trySpendGold(ent, amount)
-    if not ent.gold then return end
-    if ent.gold >= amount then
-        ent.gold = ent.gold - amount
+    if not ent.stackedGold then return end
+    if ent.stackedGold >= amount then
+        ent.stackedGold = ent.stackedGold - amount
         return true
     end
     return false

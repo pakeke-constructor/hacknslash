@@ -1,6 +1,21 @@
+
+
+
+
+g.defineEntity("gold_coin", {
+    image = "gold_coin",
+    goldAmount = 1,
+    -- playerTarget
+})
+
+
+
+
+
+
+
 g.defineEntity("payFloor", {
     goldCost = 10,
-    goldCostCooldown = {},
     -- unlock = fn
 
     area = {

@@ -94,6 +94,7 @@ local area = {
 ---@field public baseHealthRegen number?
 ---@field public lifesteal number?
 ---@field public lifetime number?
+---@field public homeTowardsEntity {target:ecs.Entity, onArrive:fun(self:ecs.Entity, targetEnt:ecs.Entity)}?
 ---@field public shadow ecs.components.Shadow?
 ---@field public _timeSinceDamaged number?
 ---@field public _timeSinceHealed number?
@@ -102,7 +103,7 @@ local area = {
 ---@field public onDraw fun(ent:ecs.Entity, x:number, y:number)?
 ---@field public physics ecs.components.Physics?
 ---@field public partitions string[]?
----@field public gold number?
+---@field public stackedGold number?
 ---@field public area ecs.components.Area?
 ---@field public ___removed boolean?
 ---@field public ___dead boolean?
